@@ -36,7 +36,6 @@ public abstract class MerchantScreenMixin {
         List<TradeOffer> offers = handler.getRecipes();
 
         HandledScreenAccessor accessor = (HandledScreenAccessor) screen;
-        int baseX = accessor.cherishedTrades$getX();
         int baseY = accessor.cherishedTrades$getY();
 
         for (int i = 0; i < offers.size(); i++) {
@@ -89,7 +88,6 @@ public abstract class MerchantScreenMixin {
         List<TradeOffer> offers = handler.getRecipes();
 
         HandledScreenAccessor accessor = (HandledScreenAccessor) screen;
-        int baseX = accessor.cherishedTrades$getX();
         int baseY = accessor.cherishedTrades$getY();
 
         double mouseX = click.x();
