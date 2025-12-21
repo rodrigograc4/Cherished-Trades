@@ -1,6 +1,7 @@
 package com.rodrigograc4.cherishedtrades.mixin;
 
 import com.rodrigograc4.cherishedtrades.CherishedTradesManager;
+import net.minecraft.client.gui.Click;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.ingame.MerchantScreen;
 import net.minecraft.item.Item;
@@ -41,8 +42,8 @@ public abstract class MerchantScreenMixin {
         for (int i = 0; i < offers.size(); i++) {
             TradeOffer offer = offers.get(i);
 
-            int starX = baseX - 12;
-            int starY = baseY + 16 + i * 20;
+            int starX = 0;
+            int starY = baseY - 14 + i * 20 ;
 
             Item item = offer.getSellItem().getItem();
             boolean favorite = CherishedTradesManager.isFavorite(item);
@@ -79,9 +80,8 @@ public abstract class MerchantScreenMixin {
         cancellable = true
     )
     private void cherishedTrades$clickStar(
-            double mouseX,
-            double mouseY,
-            int button,
+            Click click,
+            boolean doubleClick,
             CallbackInfoReturnable<Boolean> cir
     ) {
         MerchantScreen screen = (MerchantScreen) (Object) this;
@@ -92,9 +92,12 @@ public abstract class MerchantScreenMixin {
         int baseX = accessor.cherishedTrades$getX();
         int baseY = accessor.cherishedTrades$getY();
 
+        double mouseX = click.x();
+        double mouseY = click.y();
+
         for (int i = 0; i < offers.size(); i++) {
-            int starX = baseX - 12;
-            int starY = baseY + 16 + i * 20;
+            int starX = 0;
+            int starY = baseY - 14 + i * 20 ;
 
             if (mouseX >= starX && mouseX <= starX + 8 &&
                 mouseY >= starY && mouseY <= starY + 8) {
@@ -102,7 +105,7 @@ public abstract class MerchantScreenMixin {
                 Item item = offers.get(i).getSellItem().getItem();
                 CherishedTradesManager.toggleFavorite(item);
 
-                cir.setReturnValue(true); // cancela clique normal
+                cir.setReturnValue(true);
                 return;
             }
         }

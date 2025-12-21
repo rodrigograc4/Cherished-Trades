@@ -3,7 +3,7 @@
   "minVersion": "0.8",
   "package": "com.rodrigograc4.cherishedtrades.mixin",
   "compatibilityLevel": "JAVA_21",
-  "client": ["MerchantScreenMixin"],
+  "client": ["MerchantScreenMixin", "HandledScreenAccessor"],
   "injectors": {
     "defaultRequire": 1
   }
