@@ -8,4 +8,7 @@ import org.spongepowered.asm.mixin.gen.Accessor;
 public interface MerchantScreenAccessor {
     @Accessor("indexStartOffset")
     int cherishedTrades$getIndexStartOffset();
+
+    @Accessor("selectedIndex")
+int cherishedTrades$getSelectedIndex();
 }

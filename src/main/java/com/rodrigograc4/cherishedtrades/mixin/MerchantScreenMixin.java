@@ -1,6 +1,8 @@
 package com.rodrigograc4.cherishedtrades.mixin;
 
 import com.rodrigograc4.cherishedtrades.CherishedTradesManager;
+import com.rodrigograc4.cherishedtrades.IHandlerIndex;
+
 import net.minecraft.client.gui.Click;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.ingame.MerchantScreen;
@@ -67,15 +69,40 @@ public abstract class MerchantScreenMixin {
             int starY = 18 + (i * 20);
 
             if (localX >= starX && localX <= starX + 12 && localY >= starY && localY <= starY + 12) {
-                // Toggle usando o ItemStack
                 CherishedTradesManager.toggleFavorite(offers.get(recipeIndex).getSellItem());
-                
-                // Força a atualização da lista no Handler para reordenar na hora
-                handler.setOffers(offers);
-                
+                handler.setOffers(offers); 
                 cir.setReturnValue(true);
                 return;
             }
         }
+    }
+
+    @Inject(method = "syncRecipeIndex", at = @At("HEAD"), cancellable = true)
+    private void onSyncRecipeIndex(CallbackInfo ci) {
+        MerchantScreen screen = (MerchantScreen) (Object) this;
+        MerchantScreenHandler handler = screen.getScreenHandler();
+        
+        // 1. Pegamos o índice que tu clicaste (ex: 0 para Lanternas)
+        int visualIndex = ((MerchantScreenAccessor) screen).cherishedTrades$getSelectedIndex();
+        
+        // 2. Pegamos o índice real para o servidor (ex: 3 para Lanternas)
+        IHandlerIndex indexHelper = (IHandlerIndex) handler;
+        int realIndex = indexHelper.cherishedTrades$getRealIndex(visualIndex);
+
+        if (handler.getRecipes().size() > visualIndex) {
+            // No CLIENTE, o Handler deve pensar que a troca é a 'visualIndex'
+            // porque a lista de receitas dele FOI ordenada pelo nosso Mixin.
+            handler.setRecipeIndex(visualIndex);
+            handler.switchTo(visualIndex);
+            
+            // APENAS para o SERVIDOR enviamos o índice real
+            if (net.minecraft.client.MinecraftClient.getInstance().getNetworkHandler() != null) {
+                net.minecraft.client.MinecraftClient.getInstance().getNetworkHandler().sendPacket(
+                    new net.minecraft.network.packet.c2s.play.SelectMerchantTradeC2SPacket(realIndex)
+                );
+            }
+        }
+        
+        ci.cancel(); 
     }
 }
