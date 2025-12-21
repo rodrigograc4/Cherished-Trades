@@ -1,7 +1,6 @@
 package com.rodrigograc4.cherishedtrades.mixin;
 
 import com.rodrigograc4.cherishedtrades.CherishedTradesManager;
-import net.minecraft.client.font.TextRenderer;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.ingame.MerchantScreen;
 import net.minecraft.item.Item;
@@ -20,15 +19,11 @@ import java.util.List;
 @Mixin(MerchantScreen.class)
 public abstract class MerchantScreenMixin {
 
-    /* ===================== SHADOWS ===================== */
-
-    @Shadow protected int leftPos;
-    @Shadow protected int topPos;
-    @Shadow protected TextRenderer textRenderer;
     @Shadow protected MerchantScreenHandler handler;
+    @Shadow protected int x;
+    @Shadow protected int y;
 
-    /* ===================== RENDER STAR ===================== */
-
+    // ===================== RENDER STARS =====================
     @Inject(method = "render", at = @At("TAIL"))
     private void cherishedTrades$renderStars(
             DrawContext ctx,
@@ -42,8 +37,8 @@ public abstract class MerchantScreenMixin {
         for (int i = 0; i < offers.size(); i++) {
             TradeOffer offer = offers.get(i);
 
-            int starX = this.leftPos - 12;
-            int starY = this.topPos + 16 + i * 20;
+            int starX = this.x - 12;
+            int starY = this.y + 16 + i * 20;
 
             Item item = offer.getSellItem().getItem();
             boolean favorite = CherishedTradesManager.isFavorite(item);
@@ -52,7 +47,7 @@ public abstract class MerchantScreenMixin {
             int color = favorite ? 0xFFFFD700 : 0xFFFFFFFF;
 
             ctx.drawTextWithShadow(
-                    textRenderer,
+                    ((MerchantScreen) (Object) this).getTextRenderer(),
                     star,
                     starX,
                     starY,
@@ -63,7 +58,7 @@ public abstract class MerchantScreenMixin {
                 mouseY >= starY && mouseY <= starY + 8) {
 
                 ctx.drawTooltip(
-                        textRenderer,
+                        ((MerchantScreen) (Object) this).getTextRenderer(),
                         List.of(Text.literal("Favorite trade")),
                         mouseX,
                         mouseY
@@ -72,8 +67,7 @@ public abstract class MerchantScreenMixin {
         }
     }
 
-    /* ===================== CLICK ===================== */
-
+    // ===================== CLICK STARS =====================
     @Inject(method = "mouseClicked", at = @At("HEAD"), cancellable = true)
     private void cherishedTrades$clickStar(
             double mouseX,
@@ -84,8 +78,8 @@ public abstract class MerchantScreenMixin {
         List<TradeOffer> offers = handler.getRecipes();
 
         for (int i = 0; i < offers.size(); i++) {
-            int starX = this.leftPos - 12;
-            int starY = this.topPos + 16 + i * 20;
+            int starX = this.x - 12;
+            int starY = this.y + 16 + i * 20;
 
             if (mouseX >= starX && mouseX <= starX + 8 &&
                 mouseY >= starY && mouseY <= starY + 8) {

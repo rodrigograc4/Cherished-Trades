@@ -8,5 +8,6 @@ public class CherishedTrades implements ClientModInitializer {
     @Override
     public void onInitializeClient() {
         CherishedTradesConfig.init();
+        CherishedTradesManager.init();
     }
 }

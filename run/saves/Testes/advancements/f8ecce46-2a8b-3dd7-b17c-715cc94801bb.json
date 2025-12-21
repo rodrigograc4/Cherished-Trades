@@ -7,9 +7,22 @@
   },
   "minecraft:adventure/adventuring_time": {
     "criteria": {
+      "minecraft:mangrove_swamp": "2025-12-21 16:03:29 +0000",
       "minecraft:swamp": "2025-12-19 12:10:41 +0000"
     },
     "done": false
+  },
+  "minecraft:recipes/decorations/chest": {
+    "criteria": {
+      "has_lots_of_items": "2025-12-21 16:03:28 +0000"
+    },
+    "done": true
+  },
+  "minecraft:nether/netherite_armor": {
+    "criteria": {
+      "netherite_armor": "2025-12-21 16:03:28 +0000"
+    },
+    "done": true
   },
   "DataVersion": 4556
 }
