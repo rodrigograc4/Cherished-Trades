@@ -1,0 +1,22 @@
+{
+  "schemaVersion": 1,
+  "id": "cherishedtrades",
+  "version": "1.0.0",
+  "name": "Cherished Trades",
+  "description": "Favorite/Pin villager trades to the top of the list for quick and easy access",
+  "authors": ["rodrigograc4"],
+  "contact": {},
+  "license": "MIT",
+  "icon": "assets/cherishedtrades/icon.png",
+  "environment": "client",
+  "entrypoints": {
+    "client": ["com.rodrigograc4.cherishedtrades.CherishedTrades"]
+  },
+  "mixins": ["cherishedtrades.mixin.json"],
+  "depends": {
+    "fabricloader": ">=0.18.2",
+    "minecraft": "~1.21.10",
+    "java": ">=21",
+    "fabric-api": "*"
+  }
+}

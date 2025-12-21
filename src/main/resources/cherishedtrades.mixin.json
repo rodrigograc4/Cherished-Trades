@@ -1,0 +1,10 @@
+{
+  "required": true,
+  "minVersion": "0.8",
+  "package": "com.rodrigograc4.cherishedtrades.mixin",
+  "compatibilityLevel": "JAVA_21",
+  "mixins": ["MerchantScreenMixin"],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}

@@ -1,0 +1,29 @@
+{
+  "minecraft:recipes/decorations/crafting_table": {
+    "criteria": {
+      "unlock_right_away": "2025-12-19 20:06:58 +0000"
+    },
+    "done": true
+  },
+  "minecraft:adventure/totem_of_undying": {
+    "criteria": {
+      "used_totem": "2025-12-19 20:07:49 +0000"
+    },
+    "done": true
+  },
+  "minecraft:nether/netherite_armor": {
+    "criteria": {
+      "netherite_armor": "2025-12-19 20:06:58 +0000"
+    },
+    "done": true
+  },
+  "minecraft:adventure/adventuring_time": {
+    "criteria": {
+      "minecraft:desert": "2025-12-19 20:06:59 +0000",
+      "minecraft:mangrove_swamp": "2025-12-19 20:07:46 +0000",
+      "minecraft:windswept_savanna": "2025-12-19 20:07:12 +0000"
+    },
+    "done": false
+  },
+  "DataVersion": 4556
+}

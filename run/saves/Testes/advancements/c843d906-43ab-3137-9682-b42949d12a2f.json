@@ -1,0 +1,22 @@
+{
+  "minecraft:recipes/decorations/crafting_table": {
+    "criteria": {
+      "unlock_right_away": "2025-12-19 16:00:58 +0000"
+    },
+    "done": true
+  },
+  "minecraft:adventure/totem_of_undying": {
+    "criteria": {
+      "used_totem": "2025-12-19 16:01:13 +0000"
+    },
+    "done": true
+  },
+  "minecraft:adventure/adventuring_time": {
+    "criteria": {
+      "minecraft:desert": "2025-12-19 16:01:09 +0000",
+      "minecraft:mangrove_swamp": "2025-12-19 16:00:59 +0000"
+    },
+    "done": false
+  },
+  "DataVersion": 4556
+}
