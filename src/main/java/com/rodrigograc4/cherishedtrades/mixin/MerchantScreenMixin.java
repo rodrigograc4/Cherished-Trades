@@ -8,7 +8,6 @@ import net.minecraft.screen.MerchantScreenHandler;
 import net.minecraft.text.Text;
 import net.minecraft.village.TradeOffer;
 import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
@@ -19,26 +18,31 @@ import java.util.List;
 @Mixin(MerchantScreen.class)
 public abstract class MerchantScreenMixin {
 
-    @Shadow protected MerchantScreenHandler handler;
-    @Shadow protected int x;
-    @Shadow protected int y;
+    /* ---------------- DESENHAR ESTRELAS ---------------- */
 
-    // ===================== RENDER STARS =====================
-    @Inject(method = "render", at = @At("TAIL"))
-    private void cherishedTrades$renderStars(
-            DrawContext ctx,
+    @Inject(
+        method = "drawForeground",
+        at = @At("TAIL")
+    )
+    private void cherishedTrades$drawStars(
+            DrawContext context,
             int mouseX,
             int mouseY,
-            float delta,
             CallbackInfo ci
     ) {
+        MerchantScreen screen = (MerchantScreen) (Object) this;
+        MerchantScreenHandler handler = screen.getScreenHandler();
         List<TradeOffer> offers = handler.getRecipes();
+
+        HandledScreenAccessor accessor = (HandledScreenAccessor) screen;
+        int baseX = accessor.cherishedTrades$getX();
+        int baseY = accessor.cherishedTrades$getY();
 
         for (int i = 0; i < offers.size(); i++) {
             TradeOffer offer = offers.get(i);
 
-            int starX = this.x - 12;
-            int starY = this.y + 16 + i * 20;
+            int starX = baseX - 12;
+            int starY = baseY + 16 + i * 20;
 
             Item item = offer.getSellItem().getItem();
             boolean favorite = CherishedTradesManager.isFavorite(item);
@@ -46,8 +50,8 @@ public abstract class MerchantScreenMixin {
             String star = favorite ? "★" : "☆";
             int color = favorite ? 0xFFFFD700 : 0xFFFFFFFF;
 
-            ctx.drawTextWithShadow(
-                    ((MerchantScreen) (Object) this).getTextRenderer(),
+            context.drawTextWithShadow(
+                    screen.getTextRenderer(),
                     star,
                     starX,
                     starY,
@@ -57,8 +61,8 @@ public abstract class MerchantScreenMixin {
             if (mouseX >= starX && mouseX <= starX + 8 &&
                 mouseY >= starY && mouseY <= starY + 8) {
 
-                ctx.drawTooltip(
-                        ((MerchantScreen) (Object) this).getTextRenderer(),
+                context.drawTooltip(
+                        screen.getTextRenderer(),
                         List.of(Text.literal("Favorite trade")),
                         mouseX,
                         mouseY
@@ -67,19 +71,30 @@ public abstract class MerchantScreenMixin {
         }
     }
 
-    // ===================== CLICK STARS =====================
-    @Inject(method = "mouseClicked", at = @At("HEAD"), cancellable = true)
+    /* ---------------- CLIQUE NAS ESTRELAS ---------------- */
+
+    @Inject(
+        method = "mouseClicked",
+        at = @At("HEAD"),
+        cancellable = true
+    )
     private void cherishedTrades$clickStar(
             double mouseX,
             double mouseY,
             int button,
             CallbackInfoReturnable<Boolean> cir
     ) {
+        MerchantScreen screen = (MerchantScreen) (Object) this;
+        MerchantScreenHandler handler = screen.getScreenHandler();
         List<TradeOffer> offers = handler.getRecipes();
 
+        HandledScreenAccessor accessor = (HandledScreenAccessor) screen;
+        int baseX = accessor.cherishedTrades$getX();
+        int baseY = accessor.cherishedTrades$getY();
+
         for (int i = 0; i < offers.size(); i++) {
-            int starX = this.x - 12;
-            int starY = this.y + 16 + i * 20;
+            int starX = baseX - 12;
+            int starY = baseY + 16 + i * 20;
 
             if (mouseX >= starX && mouseX <= starX + 8 &&
                 mouseY >= starY && mouseY <= starY + 8) {
@@ -87,7 +102,7 @@ public abstract class MerchantScreenMixin {
                 Item item = offers.get(i).getSellItem().getItem();
                 CherishedTradesManager.toggleFavorite(item);
 
-                cir.setReturnValue(true);
+                cir.setReturnValue(true); // cancela clique normal
                 return;
             }
         }
