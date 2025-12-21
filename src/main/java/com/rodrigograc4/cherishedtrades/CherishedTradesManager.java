@@ -1,7 +1,9 @@
 package com.rodrigograc4.cherishedtrades;
 
 import net.fabricmc.loader.api.FabricLoader;
-import net.minecraft.item.Item;
+import net.minecraft.component.DataComponentTypes;
+import net.minecraft.item.ItemStack;
+import net.minecraft.item.Items;
 import net.minecraft.registry.Registries;
 
 import java.io.IOException;
@@ -19,27 +21,39 @@ public class CherishedTradesManager {
         FILE = FabricLoader.getInstance()
                 .getConfigDir()
                 .resolve("cherished_trades.json");
-
         load();
     }
 
-    public static boolean isFavorite(Item item) {
-        return FAVORITES.contains(Registries.ITEM.getId(item).toString());
+    // Gera um ID único: "minecraft:enchanted_book_mending" ou apenas "minecraft:emerald"
+    public static String getTradeIdentifier(ItemStack stack) {
+        String itemId = Registries.ITEM.getId(stack.getItem()).toString();
+        
+        if (stack.isOf(Items.ENCHANTED_BOOK)) {
+            var enchantments = stack.get(DataComponentTypes.STORED_ENCHANTMENTS);
+            if (enchantments != null && !enchantments.isEmpty()) {
+                // Pega o primeiro encantamento do livro
+                var entry = enchantments.getEnchantments().iterator().next();
+                String enchantId = entry.getKey().get().getValue().toString();
+                return itemId + "_" + enchantId;
+            }
+        }
+        return itemId;
     }
 
-    public static void toggleFavorite(Item item) {
-        String id = Registries.ITEM.getId(item).toString();
+    public static boolean isFavorite(ItemStack stack) {
+        return FAVORITES.contains(getTradeIdentifier(stack));
+    }
 
+    public static void toggleFavorite(ItemStack stack) {
+        String id = getTradeIdentifier(stack);
         if (!FAVORITES.add(id)) {
             FAVORITES.remove(id);
         }
-
         save();
     }
 
     private static void load() {
         if (!Files.exists(FILE)) return;
-
         try {
             FAVORITES.clear();
             FAVORITES.addAll(Files.readAllLines(FILE));

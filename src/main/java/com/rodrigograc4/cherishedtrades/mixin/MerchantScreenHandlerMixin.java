@@ -12,7 +12,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 @Mixin(MerchantScreenHandler.class)
 public class MerchantScreenHandlerMixin {
 
-    @Inject(method = "setOffers", at = @At("HEAD"), cancellable = true)
+    @Inject(method = "setOffers", at = @At("HEAD"))
     private void onSetOffers(TradeOfferList offers, CallbackInfo ci) {
         if (offers == null || offers.isEmpty()) return;
 
@@ -20,20 +20,16 @@ public class MerchantScreenHandlerMixin {
         TradeOfferList others = new TradeOfferList();
 
         for (TradeOffer offer : offers) {
-            // Verifica se o item vendido está nos favoritos
-            if (CherishedTradesManager.isFavorite(offer.getSellItem().getItem())) {
+            // Agora verifica o Stack completo (Item + Encantamento)
+            if (CherishedTradesManager.isFavorite(offer.getSellItem())) {
                 favorites.add(offer);
             } else {
                 others.add(offer);
             }
         }
 
-        // Reorganiza a lista original
         offers.clear();
         offers.addAll(favorites);
         offers.addAll(others);
-        
-        // Não cancelamos o CI para deixar o merchant.setOffersFromServer(offers) 
-        // original correr com a lista já ordenada.
     }
 }
