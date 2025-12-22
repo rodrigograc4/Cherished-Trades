@@ -20,9 +20,9 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 public abstract class MerchantScreenMixin {
 
     @Unique
-    private static final Identifier FILLED_STAR = Identifier.of("cherishedtrades", "textures/star.png");
+    private static final Identifier FILLED_BOOKMARK = Identifier.of("cherishedtrades", "textures/bookmark.png");
     @Unique
-    private static final Identifier EMPTY_STAR = Identifier.of("cherishedtrades", "textures/emptystar.png");
+    private static final Identifier EMPTY_BOOKMARK = Identifier.of("cherishedtrades", "textures/emptybookmark.png");
 
     @Inject(method = "drawForeground", at = @At("TAIL"))
     private void cherishedTrades$drawStars(DrawContext context, int mouseX, int mouseY, CallbackInfo ci) {
@@ -38,17 +38,17 @@ public abstract class MerchantScreenMixin {
             if (recipeIndex >= offers.size()) break;
 
             TradeOffer offer = offers.get(recipeIndex);
-            int starX = 1;
-            int starY = 22 + (i * 20); 
+            int bookmarkX = 1;
+            int bookmarkY = 18 + (i * 20); 
 
             boolean favorite = CherishedTradesManager.isFavorite(offer);
-            Identifier texture = favorite ? FILLED_STAR : EMPTY_STAR;
+            Identifier texture = favorite ? FILLED_BOOKMARK : EMPTY_BOOKMARK;
 
             context.drawTexture(
                 net.minecraft.client.gl.RenderPipelines.GUI_TEXTURED, 
                 texture, 
-                starX, 
-                starY, 
+                bookmarkX, 
+                bookmarkY, 
                 0.0F, 
                 0.0F, 
                 9, 
@@ -76,10 +76,10 @@ public abstract class MerchantScreenMixin {
             int recipeIndex = i + offset;
             if (recipeIndex >= offers.size()) break;
 
-            int starX = 1;
-            int starY = 22 + (i * 20); 
+            int bookmarkX = 1;
+            int bookmarkY = 18 + (i * 20); 
 
-            if (localX >= starX && localX <= starX + 12 && localY >= starY && localY <= starY + 12) {
+            if (localX >= bookmarkX && localX <= bookmarkX + 12 && localY >= bookmarkY && localY <= bookmarkY + 12) {
                 CherishedTradesManager.toggleFavorite(offers.get(recipeIndex));
                 handler.setOffers(offers); 
                 cir.setReturnValue(true);
