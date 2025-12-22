@@ -34,7 +34,7 @@ public class PriceChecker {
 
     private static int getMinPriceForLevel(int level, boolean isTreasure) {
         int baseMin = switch (level) {
-            case 1 -> 20;
+            case 1 -> 5;
             case 2 -> 8;
             case 3 -> 11;
             case 4 -> 14;

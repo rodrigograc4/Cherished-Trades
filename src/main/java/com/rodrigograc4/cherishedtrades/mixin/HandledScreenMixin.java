@@ -22,6 +22,10 @@ public abstract class HandledScreenMixin {
     private static final Identifier GOLD_ARROW =
             Identifier.of("cherishedtrades", "textures/goldarrow.png");
 
+    @Unique
+    private static final Identifier BLOCKED_ARROW =
+            Identifier.of("cherishedtrades", "textures/blockedarrow.png");
+
     @Inject(method = "render", at = @At("TAIL"))
     private void cherishedTrades$renderArrowOnTop(
             DrawContext context,
@@ -50,12 +54,15 @@ public abstract class HandledScreenMixin {
             TradeOffer offer = offers.get(recipeIndex);
             if (!PriceChecker.isGreatDeal(offer)) continue;
 
+            boolean blocked = offer.isDisabled();
+            Identifier texture = blocked ? BLOCKED_ARROW : GOLD_ARROW;
+
             int arrowX = baseX + 60;
             int arrowY = baseY + 22 + (i * 20);
 
             context.drawTexture(
                 RenderPipelines.GUI_TEXTURED,
-                GOLD_ARROW,
+                texture,
                 arrowX,
                 arrowY,
                 0.0F,
