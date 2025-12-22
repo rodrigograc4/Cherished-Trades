@@ -10,7 +10,8 @@
   "icon": "assets/cherishedtrades/icon.png",
   "environment": "client",
   "entrypoints": {
-    "client": ["com.rodrigograc4.cherishedtrades.CherishedTrades"]
+    "client": ["com.rodrigograc4.cherishedtrades.CherishedTrades"],
+    "modmenu": ["com.rodrigograc4.cherishedtrades.util.ModMenuIntegration"]
   },
   "mixins": ["cherishedtrades.mixin.json"],
   "depends": {

@@ -1,54 +1,12 @@
 {
   "text.autoconfig.cherishedtrades.title": "Cherished Trades Config",
 
-  "text.autoconfig.cherishedtrades.option.statsEnabled": "Enable Mod",
-  "text.autoconfig.cherishedtrades.option.statsEnabled.@Tooltip": "Toggles the entire HUD display on or off.",
+  "text.autoconfig.cherished_trades.option.enableBookmarks": "Enable Bookmarks",
+  "text.autoconfig.cherished_trades.option.enableBookmarks.@Tooltip": "Shows a bookmark icon next to villager trades, allowing you to mark your favorite trades.",
 
-  "text.autoconfig.cherishedtrades.option.padding": "Screen Padding",
-  "text.autoconfig.cherishedtrades.option.padding.@Tooltip": "Sets the distance between the stats and the edge of the screen. || default: 3",
+  "text.autoconfig.cherished_trades.option.enablePriceChecker": "Enable Price Checker",
+  "text.autoconfig.cherished_trades.option.enablePriceChecker.@Tooltip": "Highlights trades with especially good prices, such as cheap enchanted books.",
 
-  "text.autoconfig.cherishedtrades.option.linepadding": "Line Spacing",
-  "text.autoconfig.cherishedtrades.option.linepadding.@Tooltip": "Sets the vertical distance between each line of text. || default: 3",
-
-  "text.autoconfig.cherishedtrades.option.labelColor": "Label Color",
-  "text.autoconfig.cherishedtrades.option.labelColor.@Tooltip": "Color used for labels (text before the value). || default: FF9D05",
-
-  "text.autoconfig.cherishedtrades.option.valueColor": "Value Color",
-  "text.autoconfig.cherishedtrades.option.valueColor.@Tooltip": "Color used for values (numbers or text after the label). || default: FFFFFF",
-
-  "text.autoconfig.cherishedtrades.option.showDayCount": "Show Day Count",
-  "text.autoconfig.cherishedtrades.option.showDayCount.@Tooltip": "Enable or disable the world age display.",
-
-  "text.autoconfig.cherishedtrades.option.dayCountOffset": "Day Count Offset",
-  "text.autoconfig.cherishedtrades.option.dayCountOffset.@Tooltip": "Minecraft internally starts counting days at 0. This value is added to the total to show 'Day 1' on your first day. || default: 1",
-
-  "text.autoconfig.cherishedtrades.option.dayCountString": "Day Count Label",
-  "text.autoconfig.cherishedtrades.option.dayCountString.@Tooltip": "Custom text to display before the day number.",
-
-  "text.autoconfig.cherishedtrades.option.showHours": "Show In-Game Time",
-  "text.autoconfig.cherishedtrades.option.showHours.@Tooltip": "Enable or disable the in-game time display.",
-
-  "text.autoconfig.cherishedtrades.option.showCoords": "Show Coordinates",
-  "text.autoconfig.cherishedtrades.option.showCoords.@Tooltip": "Enable or disable the XYZ position display.",
-
-  "text.autoconfig.cherishedtrades.option.coordsString": "Coordinates Label",
-  "text.autoconfig.cherishedtrades.option.coordsString.@Tooltip": "Custom text to display before the XYZ coordinates.",
-
-  "text.autoconfig.cherishedtrades.option.showDirection": "Show Direction",
-  "text.autoconfig.cherishedtrades.option.showDirection.@Tooltip": "Enable or disable the direction the player is facing.",
-
-  "text.autoconfig.cherishedtrades.option.directionMode": "Direction Mode",
-  "text.autoconfig.cherishedtrades.option.directionMode.@Tooltip": "Choose how the facing direction is displayed.",
-
-  "text.autoconfig.cherishedtrades.option.directionMode.CARDINAL": "Cardinal (North / South / East / West)",
-  "text.autoconfig.cherishedtrades.option.directionMode.AXIS": "Axis (+X / -X / +Z / -Z)",
-
-  "text.autoconfig.cherishedtrades.option.directionLabel": "Direction Label",
-  "text.autoconfig.cherishedtrades.option.directionLabel.@Tooltip": "Text shown before the direction value. Default is an arrow.",
-
-  "text.autoconfig.cherishedtrades.option.showTotemsPopped": "Show Totems Popped",
-  "text.autoconfig.cherishedtrades.option.showTotemsPopped.@Tooltip": "Enable or disable the counter for totems used in this world.",
-
-  "text.autoconfig.cherishedtrades.option.totemsPoppedString": "Totems Popped Label",
-  "text.autoconfig.cherishedtrades.option.totemsPoppedString.@Tooltip": "Custom text to display before the totem count."
+  "text.autoconfig.cherished_trades.option.priceOffset": "Price Offset",
+  "text.autoconfig.cherished_trades.option.priceOffset.@Tooltip": "Allows slightly higher prices to still count as a good deal. For example: an offset of 2 means 'lowest price + 2'."
 }

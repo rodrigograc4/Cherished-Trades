@@ -1,5 +1,6 @@
 package com.rodrigograc4.cherishedtrades;
 
+import com.rodrigograc4.cherishedtrades.config.CherishedTradesConfig;
 import net.minecraft.component.DataComponentTypes;
 import net.minecraft.enchantment.Enchantment;
 import net.minecraft.item.ItemStack;
@@ -11,6 +12,11 @@ import net.minecraft.village.TradeOffer;
 public class PriceChecker {
 
     public static boolean isGreatDeal(TradeOffer offer) {
+        
+        if (!CherishedTradesConfig.INSTANCE.enablePriceChecker) {
+            return false;
+        }
+
         ItemStack sellItem = offer.getSellItem();
         if (!sellItem.isOf(Items.ENCHANTED_BOOK)) return false;
 
@@ -29,7 +35,9 @@ public class PriceChecker {
 
         int minPrice = getMinPriceForLevel(level, isTreasure);
         
-        return currentPrice <= minPrice;
+        int allowedPrice = minPrice + CherishedTradesConfig.INSTANCE.priceOffset;
+
+        return currentPrice <= allowedPrice;
     }
 
     private static int getMinPriceForLevel(int level, boolean isTreasure) {

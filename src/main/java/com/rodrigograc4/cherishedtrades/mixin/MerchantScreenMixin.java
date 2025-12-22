@@ -2,6 +2,8 @@ package com.rodrigograc4.cherishedtrades.mixin;
 
 import com.rodrigograc4.cherishedtrades.CherishedTradesManager;
 import com.rodrigograc4.cherishedtrades.IHandlerIndex;
+import com.rodrigograc4.cherishedtrades.config.CherishedTradesConfig;
+
 import net.minecraft.client.gui.Click;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.ingame.MerchantScreen;
@@ -25,7 +27,12 @@ public abstract class MerchantScreenMixin {
     private static final Identifier EMPTY_BOOKMARK = Identifier.of("cherishedtrades", "textures/emptybookmark.png");
 
     @Inject(method = "drawForeground", at = @At("TAIL"))
-    private void cherishedTrades$drawStars(DrawContext context, int mouseX, int mouseY, CallbackInfo ci) {
+    private void cherishedTrades$drawBookmarks(DrawContext context, int mouseX, int mouseY, CallbackInfo ci) {
+
+        if (!CherishedTradesConfig.INSTANCE.enableBookmarks) {
+            return;
+        }
+
         MerchantScreen screen = (MerchantScreen) (Object) this;
         MerchantScreenHandler handler = screen.getScreenHandler();
         TradeOfferList offers = handler.getRecipes();
@@ -60,7 +67,12 @@ public abstract class MerchantScreenMixin {
     }
 
     @Inject(method = "mouseClicked", at = @At("HEAD"), cancellable = true)
-    private void cherishedTrades$clickStar(Click click, boolean doubled, CallbackInfoReturnable<Boolean> cir) {
+    private void cherishedTrades$clickBookmark(Click click, boolean doubled, CallbackInfoReturnable<Boolean> cir) {
+
+        if (!CherishedTradesConfig.INSTANCE.enableBookmarks) {
+            return;
+        }
+        
         MerchantScreen screen = (MerchantScreen) (Object) this;
         MerchantScreenHandler handler = screen.getScreenHandler();
         TradeOfferList offers = handler.getRecipes();
