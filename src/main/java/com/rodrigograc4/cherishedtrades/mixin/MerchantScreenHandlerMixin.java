@@ -20,7 +20,6 @@ public class MerchantScreenHandlerMixin implements IHandlerIndex {
     @Unique
     private final List<Integer> cherishedTrades$originalIndices = new ArrayList<>();
     
-    // Esta lista guarda as ofertas ORIGINAIS do servidor e nunca muda a ordem
     @Unique
     private final List<TradeOffer> cherishedTrades$snapshot = new ArrayList<>();
 
@@ -28,8 +27,6 @@ public class MerchantScreenHandlerMixin implements IHandlerIndex {
     private void onSetOffers(TradeOfferList offers, CallbackInfo ci) {
         if (offers == null || offers.isEmpty()) return;
 
-        // Se a snapshot estiver vazia, significa que o Villager acabou de ser aberto.
-        // Guardamos a ordem exata do servidor.
         if (cherishedTrades$snapshot.isEmpty()) {
             cherishedTrades$snapshot.addAll(offers);
         }
@@ -38,7 +35,6 @@ public class MerchantScreenHandlerMixin implements IHandlerIndex {
         TradeOfferList others = new TradeOfferList();
         cherishedTrades$originalIndices.clear();
 
-        // SEMPRE usamos a snapshot (ordem real) para decidir a nova ordem visual
         for (TradeOffer offer : cherishedTrades$snapshot) {
             if (CherishedTradesManager.isFavorite(offer.getSellItem())) {
                 favorites.add(offer);
@@ -47,12 +43,10 @@ public class MerchantScreenHandlerMixin implements IHandlerIndex {
             }
         }
 
-        // Limpamos a lista que o Minecraft usa e reconstruímos
         offers.clear();
         offers.addAll(favorites);
         offers.addAll(others);
 
-        // Criamos o mapa de tradução para o servidor não se enganar
         for (TradeOffer visualOffer : offers) {
             for (int i = 0; i < cherishedTrades$snapshot.size(); i++) {
                 if (visualOffer == cherishedTrades$snapshot.get(i)) {

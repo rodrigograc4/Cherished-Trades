@@ -5,7 +5,6 @@ import com.rodrigograc4.cherishedtrades.IHandlerIndex;
 import net.minecraft.client.gui.Click;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.ingame.MerchantScreen;
-import net.minecraft.client.render.RenderLayer;
 import net.minecraft.screen.MerchantScreenHandler;
 import net.minecraft.util.Identifier;
 import net.minecraft.village.TradeOffer;
@@ -80,7 +79,6 @@ public abstract class MerchantScreenMixin {
             int starX = 1;
             int starY = 22 + (i * 20); 
 
-            // Mantemos a área de clique de 12x12
             if (localX >= starX && localX <= starX + 12 && localY >= starY && localY <= starY + 12) {
                 CherishedTradesManager.toggleFavorite(offers.get(recipeIndex).getSellItem());
                 handler.setOffers(offers); 

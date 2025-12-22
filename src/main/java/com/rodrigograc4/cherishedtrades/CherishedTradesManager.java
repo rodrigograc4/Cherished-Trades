@@ -28,20 +28,12 @@ public class CherishedTradesManager {
         String itemId = Registries.ITEM.getId(stack.getItem()).toString();
         
         if (stack.isOf(Items.ENCHANTED_BOOK)) {
-            // Obtemos a lista de encantamentos armazenados
             var enchantments = stack.get(DataComponentTypes.STORED_ENCHANTMENTS);
             
             if (enchantments != null && !enchantments.isEmpty()) {
-                // Pegamos o primeiro encantamento da lista
-                // Na 1.21.x, o 'enchantments' é um ItemEnchantmentsComponent
                 var entrySet = enchantments.getEnchantmentEntries();
                 var firstEntry = entrySet.iterator().next();
-                
-                // O 'firstEntry' é do tipo Object2IntMap.Entry<RegistryEntry<Enchantment>>
-                // O ID do encantamento (ex: minecraft:fortune)
                 String enchantId = firstEntry.getKey().getKey().get().getValue().toString();
-                
-                // O Nível (o valor inteiro associado à chave no mapa)
                 int level = firstEntry.getIntValue();
                 
                 return itemId + "_" + enchantId + "_" + level;
