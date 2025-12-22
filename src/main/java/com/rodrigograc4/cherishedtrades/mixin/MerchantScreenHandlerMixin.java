@@ -36,7 +36,7 @@ public class MerchantScreenHandlerMixin implements IHandlerIndex {
         cherishedTrades$originalIndices.clear();
 
         for (TradeOffer offer : cherishedTrades$snapshot) {
-            if (CherishedTradesManager.isFavorite(offer.getSellItem())) {
+            if (CherishedTradesManager.isFavorite(offer)) {
                 favorites.add(offer);
             } else {
                 others.add(offer);

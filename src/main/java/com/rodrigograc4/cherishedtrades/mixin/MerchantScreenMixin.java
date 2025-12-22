@@ -41,7 +41,7 @@ public abstract class MerchantScreenMixin {
             int starX = 1;
             int starY = 22 + (i * 20); 
 
-            boolean favorite = CherishedTradesManager.isFavorite(offer.getSellItem());
+            boolean favorite = CherishedTradesManager.isFavorite(offer);
             Identifier texture = favorite ? FILLED_STAR : EMPTY_STAR;
 
             context.drawTexture(
@@ -80,7 +80,7 @@ public abstract class MerchantScreenMixin {
             int starY = 22 + (i * 20); 
 
             if (localX >= starX && localX <= starX + 12 && localY >= starY && localY <= starY + 12) {
-                CherishedTradesManager.toggleFavorite(offers.get(recipeIndex).getSellItem());
+                CherishedTradesManager.toggleFavorite(offers.get(recipeIndex));
                 handler.setOffers(offers); 
                 cir.setReturnValue(true);
                 return;
