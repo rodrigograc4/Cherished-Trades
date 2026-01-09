@@ -31,14 +31,14 @@ dependencies {
 	modImplementation "net.fabricmc:fabric-loader:${project.loader_version}"
 
 	// Fabric API
-	modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
+	modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_api_version}"
 
 	// Cloth Config API
-	modApi "me.shedaniel.cloth:cloth-config-fabric:20.0.149"
-	include "me.shedaniel.cloth:cloth-config-fabric:20.0.149"
+	modApi "me.shedaniel.cloth:cloth-config-fabric:${project.cloth_config_version}"
+	include "me.shedaniel.cloth:cloth-config-fabric:${project.cloth_config_version}"
 
 	// Mod Menu
-	modApi "com.terraformersmc:modmenu:16.0.0-rc.1"
+	modApi "com.terraformersmc:modmenu:${project.modmenu_version}"
 	
 }
 
