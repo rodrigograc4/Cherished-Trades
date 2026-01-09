@@ -12,18 +12,11 @@ import me.shedaniel.autoconfig.serializer.JanksonConfigSerializer;
 @Config(name = "cherished_trades")
 public class CherishedTradesConfig implements ConfigData {
 
-    public static CherishedTradesConfig INSTANCE;
+    @ConfigEntry.Gui.Excluded
+    public static transient CherishedTradesConfig INSTANCE;
 
+    @ConfigEntry.Gui.Excluded
     public Set<String> favoriteItems = new HashSet<>();
-
-    public static void init() {
-        AutoConfig.register(CherishedTradesConfig.class, JanksonConfigSerializer::new);
-        INSTANCE = AutoConfig.getConfigHolder(CherishedTradesConfig.class).getConfig();
-    }
-
-    public static void save() {
-        AutoConfig.getConfigHolder(CherishedTradesConfig.class).save();
-    }
 
     @ConfigEntry.Gui.Tooltip
     public boolean enableBookmarks = true;
@@ -34,4 +27,13 @@ public class CherishedTradesConfig implements ConfigData {
     @ConfigEntry.Gui.Tooltip
     @ConfigEntry.BoundedDiscrete(min = 0, max = 50)
     public int priceOffset = 0;
+
+    public static void init() {
+        AutoConfig.register(CherishedTradesConfig.class, JanksonConfigSerializer::new);
+        INSTANCE = AutoConfig.getConfigHolder(CherishedTradesConfig.class).getConfig();
+    }
+
+    public static void save() {
+        AutoConfig.getConfigHolder(CherishedTradesConfig.class).save();
+    }
 }
