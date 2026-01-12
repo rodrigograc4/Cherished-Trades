@@ -1,12 +1,12 @@
 {
-  "text.autoconfig.cherishedtrades.title": "Cherished Trades Config",
+  "text.autoconfig.cherished-trades.title": "Cherished Trades",
 
-  "text.autoconfig.cherished_trades.option.enableBookmarks": "Enable Bookmarks",
-  "text.autoconfig.cherished_trades.option.enableBookmarks.@Tooltip": "Shows a bookmark icon next to villager trades, allowing you to mark your favorite trades.",
+  "text.autoconfig.cherished-trades.option.enableBookmarks": "Enable Bookmarks",
+  "text.autoconfig.cherished-trades.option.enableBookmarks.@Tooltip": "Shows a bookmark icon next to villager trades, allowing you to mark your favorite trades.",
 
-  "text.autoconfig.cherished_trades.option.enablePriceChecker": "Enable Price Checker",
-  "text.autoconfig.cherished_trades.option.enablePriceChecker.@Tooltip": "Highlights trades with especially good prices, such as cheap enchanted books.",
+  "text.autoconfig.cherished-trades.option.enablePriceChecker": "Enable Price Checker",
+  "text.autoconfig.cherished-trades.option.enablePriceChecker.@Tooltip": "Highlights trades with especially good prices, such as cheap enchanted books.",
 
-  "text.autoconfig.cherished_trades.option.priceOffset": "Price Offset",
-  "text.autoconfig.cherished_trades.option.priceOffset.@Tooltip": "Allows slightly higher prices to still count as a good deal. For example: an offset of 2 means 'lowest price + 2'."
+  "text.autoconfig.cherished-trades.option.priceOffset": "Price Offset",
+  "text.autoconfig.cherished-trades.option.priceOffset.@Tooltip": "Allows slightly higher prices to still count as a good deal. For example: an offset of 2 means 'lowest price + 2'."
 }

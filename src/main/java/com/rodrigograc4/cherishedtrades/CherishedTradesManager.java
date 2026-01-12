@@ -21,7 +21,7 @@ public class CherishedTradesManager {
     public static void init() {
         FILE = FabricLoader.getInstance()
                 .getConfigDir()
-                .resolve("cherished_trades.json");
+                .resolve("cherished-trades.json");
         load();
     }
 

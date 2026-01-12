@@ -9,7 +9,7 @@ import me.shedaniel.autoconfig.annotation.Config;
 import me.shedaniel.autoconfig.annotation.ConfigEntry;
 import me.shedaniel.autoconfig.serializer.JanksonConfigSerializer;
 
-@Config(name = "cherished_trades")
+@Config(name = "cherished-trades")
 public class CherishedTradesConfig implements ConfigData {
 
     @ConfigEntry.Gui.Excluded
