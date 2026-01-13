@@ -6,6 +6,9 @@ import me.shedaniel.autoconfig.annotation.Config;
 import me.shedaniel.autoconfig.annotation.ConfigEntry;
 import me.shedaniel.autoconfig.serializer.JanksonConfigSerializer;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @Config(name = "cherished-trades")
 public class CherishedTradesConfig implements ConfigData {
 
@@ -21,6 +24,9 @@ public class CherishedTradesConfig implements ConfigData {
     @ConfigEntry.Gui.Tooltip
     @ConfigEntry.BoundedDiscrete(min = 0, max = 50)
     public int priceOffset = 0;
+
+    @ConfigEntry.Gui.Tooltip
+    public List<String> highlightedEnchantments = new ArrayList<>();
 
     public static void init() {
         AutoConfig.register(CherishedTradesConfig.class, JanksonConfigSerializer::new);
