@@ -8,5 +8,8 @@
   "text.autoconfig.cherished-trades.option.enablePriceChecker.@Tooltip": "Highlights trades with especially good prices, such as cheap enchanted books.",
 
   "text.autoconfig.cherished-trades.option.priceOffset": "Price Offset",
-  "text.autoconfig.cherished-trades.option.priceOffset.@Tooltip": "Allows slightly higher prices to still count as a good deal. For example: an offset of 2 means 'lowest price + 2'."
+  "text.autoconfig.cherished-trades.option.priceOffset.@Tooltip": "Allows slightly higher prices to still count as a good deal. For example: an offset of 2 means 'lowest price + 2'.",
+
+  "text.autoconfig.cherished-trades.option.highlightedEnchantments": "Highlight Enchantmented Books (ex. 'Sharpness 5')",
+  "text.autoconfig.cherished-trades.option.highlightedEnchantments.@Tooltip": "List of enchantments you want to highlight in villager trades. Type full name like 'Sharpness 5'."
 }
