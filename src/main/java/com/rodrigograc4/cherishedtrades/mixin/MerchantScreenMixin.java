@@ -1,8 +1,20 @@
 package com.rodrigograc4.cherishedtrades.mixin;
 
+import java.util.List;
+import java.util.UUID;
+
+import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Unique;
+import org.spongepowered.asm.mixin.injection.At;
+import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
+
 import com.rodrigograc4.cherishedtrades.CherishedTradesManager;
 import com.rodrigograc4.cherishedtrades.IHandlerIndex;
+import com.rodrigograc4.cherishedtrades.IMerchantScreenHandlerMixin;
 import com.rodrigograc4.cherishedtrades.config.CherishedTradesConfig;
+import com.rodrigograc4.cherishedtrades.util.SyntheticVillagerUUID;
 
 import net.minecraft.client.gui.Click;
 import net.minecraft.client.gui.DrawContext;
@@ -11,12 +23,6 @@ import net.minecraft.screen.MerchantScreenHandler;
 import net.minecraft.util.Identifier;
 import net.minecraft.village.TradeOffer;
 import net.minecraft.village.TradeOfferList;
-import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.Unique;
-import org.spongepowered.asm.mixin.injection.At;
-import org.spongepowered.asm.mixin.injection.Inject;
-import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
-import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 @Mixin(MerchantScreen.class)
 public abstract class MerchantScreenMixin {
@@ -48,7 +54,16 @@ public abstract class MerchantScreenMixin {
             int bookmarkX = 1;
             int bookmarkY = 18 + (i * 20); 
 
-            boolean favorite = CherishedTradesManager.isFavorite(offer);
+            IMerchantScreenHandlerMixin handlerMixin = (IMerchantScreenHandlerMixin) handler;
+            List<TradeOffer> originalSnapshot = handlerMixin.cherishedTrades$getSnapshot();
+
+            TradeOfferList originalOffers = new TradeOfferList();
+            originalOffers.addAll(originalSnapshot);
+
+            UUID villagerId = SyntheticVillagerUUID.fromTrades(originalOffers);
+
+
+            boolean favorite = CherishedTradesManager.isFavorite(villagerId, offer);
             Identifier texture = favorite ? FILLED_BOOKMARK : EMPTY_BOOKMARK;
 
             context.drawTexture(
@@ -91,8 +106,16 @@ public abstract class MerchantScreenMixin {
             int bookmarkX = 1;
             int bookmarkY = 18 + (i * 20); 
 
+            IMerchantScreenHandlerMixin handlerMixin = (IMerchantScreenHandlerMixin) handler;
+            List<TradeOffer> originalSnapshot = handlerMixin.cherishedTrades$getSnapshot();
+
+            TradeOfferList originalOffers = new TradeOfferList();
+            originalOffers.addAll(originalSnapshot);
+
+            UUID villagerId = SyntheticVillagerUUID.fromTrades(originalOffers);
+
             if (localX >= bookmarkX && localX <= bookmarkX + 12 && localY >= bookmarkY && localY <= bookmarkY + 12) {
-                CherishedTradesManager.toggleFavorite(offers.get(recipeIndex));
+                CherishedTradesManager.toggleFavorite(villagerId, offers.get(recipeIndex));
                 handler.setOffers(offers); 
                 cir.setReturnValue(true);
                 return;
