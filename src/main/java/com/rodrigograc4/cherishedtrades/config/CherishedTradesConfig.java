@@ -1,8 +1,5 @@
 package com.rodrigograc4.cherishedtrades.config;
 
-import java.util.HashSet;
-import java.util.Set;
-
 import me.shedaniel.autoconfig.AutoConfig;
 import me.shedaniel.autoconfig.ConfigData;
 import me.shedaniel.autoconfig.annotation.Config;
@@ -14,9 +11,6 @@ public class CherishedTradesConfig implements ConfigData {
 
     @ConfigEntry.Gui.Excluded
     public static transient CherishedTradesConfig INSTANCE;
-
-    @ConfigEntry.Gui.Excluded
-    public Set<String> favoriteItems = new HashSet<>();
 
     @ConfigEntry.Gui.Tooltip
     public boolean enableBookmarks = true;

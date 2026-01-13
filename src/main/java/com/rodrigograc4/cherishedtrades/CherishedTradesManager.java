@@ -1,5 +1,9 @@
 package com.rodrigograc4.cherishedtrades;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonObject;
 import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.component.DataComponentTypes;
 import net.minecraft.item.ItemStack;
@@ -8,6 +12,8 @@ import net.minecraft.registry.Registries;
 import net.minecraft.village.TradeOffer;
 
 import java.io.IOException;
+import java.io.Reader;
+import java.io.Writer;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.*;
@@ -16,8 +22,6 @@ public class CherishedTradesManager {
 
     private static final Map<UUID, Set<String>> FAVORITES = new HashMap<>();
     private static Path FILE;
-
-    private static final String TRADE_SEPARATOR = "|";
 
     public static void init() {
         FILE = FabricLoader.getInstance()
@@ -53,13 +57,10 @@ public class CherishedTradesManager {
 
         ItemStack secondBuy = offer.getDisplayedSecondBuyItem();
         if (!secondBuy.isEmpty()) {
-            sb.append("_plus_");
-            sb.append(getItemStackKey(secondBuy));
+            sb.append("_plus_").append(getItemStackKey(secondBuy));
         }
 
-        sb.append("_to_");
-        sb.append(getItemStackKey(offer.getSellItem()));
-
+        sb.append("_to_").append(getItemStackKey(offer.getSellItem()));
         return sb.toString();
     }
 
@@ -85,23 +86,17 @@ public class CherishedTradesManager {
         FAVORITES.clear();
         if (!Files.exists(FILE)) return;
 
-        try {
-            for (String line : Files.readAllLines(FILE)) {
-                String[] split = line.split(":", 2);
-                if (split.length != 2) continue;
+        try (Reader reader = Files.newBufferedReader(FILE)) {
+            Gson gson = new Gson();
+            JsonObject root = gson.fromJson(reader, JsonObject.class);
+            if (root == null || !root.has("bookmarks")) return;
 
-                UUID villagerId;
-                try {
-                    villagerId = UUID.fromString(split[0]);
-                } catch (IllegalArgumentException e) {
-                    continue;
-                }
-
+            JsonArray bookmarks = root.getAsJsonArray("bookmarks");
+            for (var element : bookmarks) {
+                JsonObject obj = element.getAsJsonObject();
+                UUID villagerId = UUID.fromString(obj.get("villager").getAsString());
                 Set<String> trades = new HashSet<>();
-                if (!split[1].isEmpty()) {
-                    trades.addAll(Arrays.asList(split[1].split("\\" + TRADE_SEPARATOR)));
-                }
-
+                obj.getAsJsonArray("trades").forEach(t -> trades.add(t.getAsString()));
                 FAVORITES.put(villagerId, trades);
             }
         } catch (IOException e) {
@@ -110,17 +105,25 @@ public class CherishedTradesManager {
     }
 
     private static void save() {
-        List<String> lines = new ArrayList<>();
+        Gson gson = new GsonBuilder().setPrettyPrinting().create();
+        JsonArray bookmarks = new JsonArray();
 
         for (var entry : FAVORITES.entrySet()) {
-            if (entry.getValue().isEmpty()) continue;
+            JsonObject obj = new JsonObject();
+            obj.addProperty("villager", entry.getKey().toString());
 
-            String line = entry.getKey() + ":" + String.join(TRADE_SEPARATOR, entry.getValue());
-            lines.add(line);
+            JsonArray trades = new JsonArray();
+            entry.getValue().forEach(trades::add);
+
+            obj.add("trades", trades);
+            bookmarks.add(obj);
         }
 
-        try {
-            Files.write(FILE, lines);
+        JsonObject root = new JsonObject();
+        root.add("bookmarks", bookmarks);
+
+        try (Writer writer = Files.newBufferedWriter(FILE)) {
+            gson.toJson(root, writer);
         } catch (IOException e) {
             e.printStackTrace();
         }
