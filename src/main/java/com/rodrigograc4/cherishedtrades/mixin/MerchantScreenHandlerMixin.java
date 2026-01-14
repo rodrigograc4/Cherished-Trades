@@ -33,6 +33,12 @@ public class MerchantScreenHandlerMixin implements IHandlerIndex, IMerchantScree
         return cherishedTrades$snapshot;
     }
 
+    private String getWorldName() {
+        var client = net.minecraft.client.MinecraftClient.getInstance();
+        if (client.getServer() == null) return "unknown";
+        return client.getServer().getSaveProperties().getLevelName();
+    }
+
     @Inject(method = "setOffers", at = @At("HEAD"))
     private void onSetOffers(TradeOfferList offers, CallbackInfo ci) {
         if (offers == null || offers.isEmpty()) return;
@@ -50,10 +56,11 @@ public class MerchantScreenHandlerMixin implements IHandlerIndex, IMerchantScree
         TradeOfferList originalOffers = new TradeOfferList();
         originalOffers.addAll(originalSnapshot);
 
+        String worldName = getWorldName();
         UUID villagerId = SyntheticVillagerUUID.fromTrades(originalOffers);
 
         for (TradeOffer offer : cherishedTrades$snapshot) {
-            if (CherishedTradesManager.isFavorite(villagerId, offer)) {
+            if (CherishedTradesManager.isFavorite(worldName, villagerId, offer)) {
                 favorites.add(offer);
             } else {
                 others.add(offer);

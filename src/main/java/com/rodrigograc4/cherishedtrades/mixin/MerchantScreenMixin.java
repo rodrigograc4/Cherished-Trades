@@ -35,6 +35,12 @@ public abstract class MerchantScreenMixin {
     @Unique
     private static final Identifier EMPTY_BOOKMARK = Identifier.of("cherishedtrades", "textures/emptybookmark.png");
 
+    private String getWorldName() {
+        var client = net.minecraft.client.MinecraftClient.getInstance();
+        if (client.getServer() == null) return "unknown";
+        return client.getServer().getSaveProperties().getLevelName();
+    }
+
     @Inject(method = "drawForeground", at = @At("TAIL"))
     private void cherishedTrades$drawBookmarks(DrawContext context, int mouseX, int mouseY, CallbackInfo ci) {
 
@@ -54,6 +60,7 @@ public abstract class MerchantScreenMixin {
         TradeOfferList originalOffers = new TradeOfferList();
         originalOffers.addAll(originalSnapshot);
 
+        String worldName = getWorldName();
         UUID villagerId = SyntheticVillagerUUID.fromTrades(originalOffers);
 
         for (int i = 0; i < 7; i++) {
@@ -91,7 +98,7 @@ public abstract class MerchantScreenMixin {
                 context.fill(slotX, slotY, slotX + slotWidth, slotY + slotHeight, 0x609c31e4);
             }
 
-            boolean favorite = CherishedTradesManager.isFavorite(villagerId, offer);
+            boolean favorite = CherishedTradesManager.isFavorite(worldName, villagerId, offer);
             Identifier texture = favorite ? FILLED_BOOKMARK : EMPTY_BOOKMARK;
 
             int bookmarkX = 1;
@@ -134,6 +141,7 @@ public abstract class MerchantScreenMixin {
         TradeOfferList originalOffers = new TradeOfferList();
         originalOffers.addAll(originalSnapshot);
 
+        String worldName = getWorldName();
         UUID villagerId = SyntheticVillagerUUID.fromTrades(originalOffers);
 
         for (int i = 0; i < 7; i++) {
@@ -144,7 +152,7 @@ public abstract class MerchantScreenMixin {
             int bookmarkY = 18 + (i * 20);
 
             if (localX >= bookmarkX && localX <= bookmarkX + 12 && localY >= bookmarkY && localY <= bookmarkY + 12) {
-                CherishedTradesManager.toggleFavorite(villagerId, offers.get(recipeIndex));
+                CherishedTradesManager.toggleFavorite(worldName, villagerId, offers.get(recipeIndex));
                 handler.setOffers(offers);
                 cir.setReturnValue(true);
                 return;
