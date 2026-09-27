@@ -1,0 +1,27 @@
+{
+  "schemaVersion": 1,
+  "id": "cherishedtrades",
+  "version": "${version}",
+  "name": "Cherished Trades",
+  "description": "Bookmark villager trades for easy access and see which ones have a good price",
+  "authors": ["rodrigograc4"],
+  "contact": {
+    "homepage": "https://github.com/rodrigograc4/Cherished-Trades",
+    "issues": "https://github.com/rodrigograc4/Cherished-Trades/issues",
+    "sources": "https://github.com/rodrigograc4/Cherished-Trades"
+  },
+  "license": "MIT",
+  "icon": "assets/cherishedtrades/icon.png",
+  "environment": "client",
+  "entrypoints": {
+    "client": ["com.rodrigograc4.cherishedtrades.CherishedTrades"],
+    "modmenu": ["com.rodrigograc4.cherishedtrades.util.ModMenuIntegration"]
+  },
+  "mixins": ["cherishedtrades.mixin.json"],
+  "depends": {
+    "fabricloader": ">=0.19.5",
+    "minecraft": "~26.3",
+    "java": ">=25",
+    "fabric-api": "*"
+  }
+}

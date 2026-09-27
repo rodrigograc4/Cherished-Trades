@@ -1,0 +1,13 @@
+{
+  "schemaVersion": 1,
+  "id": "cherishedtrades-gametest",
+  "version": "1.0.0",
+  "name": "Cherished Trades Game Tests",
+  "environment": "client",
+  "entrypoints": {
+    "fabric-client-gametest": ["com.rodrigograc4.cherishedtrades.gametest.CherishedTradesClientGameTest"]
+  },
+  "depends": {
+    "cherishedtrades": "*"
+  }
+}
