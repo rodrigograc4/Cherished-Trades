@@ -14,8 +14,12 @@ public class EnchantmentHelper {
     private static List<String> cachedEntries = List.of();
     private static Set<String> cachedIds = Set.of();
 
+    // Accepts both "minecraft:sharpness 5" (written by the config screen) and the older
+    // typed form "Sharpness 5", and returns the former.
     public static String convertToIdFormat(String displayName) {
         String name = displayName.toLowerCase().trim();
+        if (name.contains(":")) return name;
+
         int level = 1;
 
         if (name.endsWith(" 5")) { level = 5; name = name.substring(0, name.length() - 2); }
@@ -33,6 +37,7 @@ public class EnchantmentHelper {
     }
 
     public static boolean isHighlighted(ItemStack stack) {
+        if (!CherishedTradesConfig.INSTANCE.enableHighlightedBooks) return false;
         if (!stack.is(Items.ENCHANTED_BOOK)) return false;
 
         var enchantments = stack.get(DataComponents.STORED_ENCHANTMENTS);

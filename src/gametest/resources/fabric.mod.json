@@ -5,7 +5,10 @@
   "name": "Cherished Trades Game Tests",
   "environment": "client",
   "entrypoints": {
-    "fabric-client-gametest": ["com.rodrigograc4.cherishedtrades.gametest.CherishedTradesClientGameTest"]
+    "fabric-client-gametest": [
+      "com.rodrigograc4.cherishedtrades.gametest.CherishedTradesClientGameTest",
+      "com.rodrigograc4.cherishedtrades.gametest.ConfigScreenPreview"
+    ]
   },
   "depends": {
     "cherishedtrades": "*"

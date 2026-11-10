@@ -36,6 +36,13 @@ public class CherishedTradesManager {
         return trades != null && trades.contains(TradeKey.of(serverIndex, offer));
     }
 
+    /** The bookmarked trade keys of a villager in the current world, in the order they were added. */
+    public static Set<String> getFavorites(UUID villagerId) {
+        Map<UUID, Set<String>> favorites = FAVORITES_BY_WORLD.get(WorldKey.current());
+        if (favorites == null) return Set.of();
+        return favorites.getOrDefault(villagerId, Set.of());
+    }
+
     public static void toggleFavorite(UUID villagerId, int serverIndex, MerchantOffer offer) {
         String world = WorldKey.current();
         Map<UUID, Set<String>> favorites = FAVORITES_BY_WORLD.computeIfAbsent(world, k -> new HashMap<>());

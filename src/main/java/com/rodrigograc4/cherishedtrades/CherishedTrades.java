@@ -11,5 +11,6 @@ public class CherishedTrades implements ClientModInitializer {
         CherishedTradesConfig.init();
         CherishedTradesManager.init();
         WorldKey.register();
+        TradePriceTooltip.register();
     }
 }

@@ -1,15 +1,18 @@
 {
   "text.autoconfig.cherished-trades.title": "Cherished Trades",
-
   "text.autoconfig.cherished-trades.option.enableBookmarks": "Enable Bookmarks",
   "text.autoconfig.cherished-trades.option.enableBookmarks.@Tooltip": "Shows a bookmark icon next to villager trades, allowing you to mark your favorite trades.",
-
+  "text.autoconfig.cherished-trades.option.enableHighlightedBooks": "Enable Highlighted Books",
+  "text.autoconfig.cherished-trades.option.enableHighlightedBooks.@Tooltip": "Highlights trades selling the enchanted books chosen in the Highlighted Books tab. Turning this off keeps your choices.",
   "text.autoconfig.cherished-trades.option.enablePriceChecker": "Enable Price Checker",
-  "text.autoconfig.cherished-trades.option.enablePriceChecker.@Tooltip": "Highlights trades with especially good prices, such as cheap enchanted books.",
-
+  "text.autoconfig.cherished-trades.option.enablePriceChecker.@Tooltip": "Marks enchanted books whose price is among the cheapest a villager can roll, ignoring temporary discounts. Hovering a book also shows its possible price range.",
   "text.autoconfig.cherished-trades.option.priceOffset": "Price Offset",
   "text.autoconfig.cherished-trades.option.priceOffset.@Tooltip": "Allows slightly higher prices to still count as a good deal. For example: an offset of 2 means 'lowest price + 2'.",
-
-  "text.autoconfig.cherished-trades.option.highlightedEnchantments": "Highlight Enchantmented Books (ex. 'Sharpness 5')",
-  "text.autoconfig.cherished-trades.option.highlightedEnchantments.@Tooltip": "List of enchantments you want to highlight in villager trades. Type full name like 'Sharpness 5'."
+  "text.autoconfig.cherished-trades.category.general": "General",
+  "text.autoconfig.cherished-trades.category.highlightedEnchantments": "Highlighted Books",
+  "text.autoconfig.cherished-trades.highlightedEnchantments.description": "Turn on the enchanted books you are looking for. Villager trades selling them will be highlighted.",
+  "cherishedtrades.tooltip.priceRange": "Possible prices: %s – %s emeralds",
+  "cherishedtrades.tooltip.villagerPrice": "This villager: %s emeralds",
+  "cherishedtrades.tooltip.discounted": "With discount: %s emeralds",
+  "cherishedtrades.tooltip.discounted.one": "With discount: %s emerald"
 }

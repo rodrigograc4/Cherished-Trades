@@ -19,6 +19,9 @@ public class CherishedTradesConfig implements ConfigData {
     public boolean enableBookmarks = true;
 
     @ConfigEntry.Gui.Tooltip
+    public boolean enableHighlightedBooks = true;
+
+    @ConfigEntry.Gui.Tooltip
     public boolean enablePriceChecker = true;
 
     @ConfigEntry.Gui.Tooltip
@@ -26,7 +29,7 @@ public class CherishedTradesConfig implements ConfigData {
     public int priceOffset = 0;
 
     @ConfigEntry.Gui.Tooltip
-    public List<String> highlightedEnchantments = new ArrayList<>();
+    public List<String> highlightedEnchantments = new ArrayList<>(List.of("minecraft:mending 1", "minecraft:unbreaking 3"));
 
     public static void init() {
         AutoConfig.register(CherishedTradesConfig.class, JanksonConfigSerializer::new);

@@ -9,10 +9,11 @@ import com.mojang.blaze3d.platform.Window;
 import com.rodrigograc4.cherishedtrades.CherishedMerchantMenu;
 import com.rodrigograc4.cherishedtrades.CherishedTradesManager;
 import com.rodrigograc4.cherishedtrades.PriceChecker;
+import com.rodrigograc4.cherishedtrades.VillagerTradeLabels;
 import com.rodrigograc4.cherishedtrades.config.CherishedTradesConfig;
+import com.rodrigograc4.cherishedtrades.config.CherishedTradesConfigScreen;
 import com.rodrigograc4.cherishedtrades.util.WorldKey;
 
-import me.shedaniel.autoconfig.AutoConfigClient;
 import net.fabricmc.fabric.api.client.gametest.v1.FabricClientGameTest;
 import net.fabricmc.fabric.api.client.gametest.v1.context.ClientGameTestContext;
 import net.fabricmc.fabric.api.client.gametest.v1.context.TestDedicatedServerConnection;
@@ -27,7 +28,9 @@ import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.EntitySpawnReason;
+import net.minecraft.world.entity.ai.village.ReputationEventType;
 import net.minecraft.world.entity.EntityTypes;
 import net.minecraft.world.entity.npc.villager.Villager;
 import net.minecraft.world.entity.npc.villager.VillagerProfession;
@@ -118,9 +121,20 @@ public class CherishedTradesClientGameTest implements FabricClientGameTest {
             context.waitTicks(5);
         }
 
-        context.setScreen(() -> AutoConfigClient.getConfigScreen(CherishedTradesConfig.class, null).get());
+        context.setScreen(() -> CherishedTradesConfigScreen.create(null));
         context.waitTicks(5);
         context.takeScreenshot("cherishedtrades-8-config");
+
+        // Second tab: the enchantment toggles. Mending 1 was set in the old typed format above.
+        double[] tab = context.computeOnClient(client -> {
+            Window window = client.getWindow();
+            double scale = (double) window.getScreenWidth() / window.getGuiScaledWidth();
+            return new double[] { 120 * scale, 52 * scale };
+        });
+        context.getInput().setCursorPos(tab[0], tab[1]);
+        context.getInput().pressMouse(InputConstants.MOUSE_BUTTON_LEFT);
+        context.waitTicks(5);
+        context.takeScreenshot("cherishedtrades-9-config-books");
         context.setScreen(() -> null);
     }
 
@@ -140,10 +154,30 @@ public class CherishedTradesClientGameTest implements FabricClientGameTest {
             }
 
             check(PriceChecker.isGreatDeal(offers.get(MENDING_CHEAP)), "5 emerald mending should be a great deal");
-            check(!PriceChecker.isGreatDeal(offers.get(SHARPNESS_EXPENSIVE)), "60 emerald sharpness IV should not be a deal");
+            check(!PriceChecker.isGreatDeal(offers.get(SHARPNESS_EXPENSIVE)), "50 emerald sharpness IV should not be a deal");
             check(PriceChecker.isGreatDeal(offers.get(SHARPNESS_CHEAP)), "17 emerald sharpness V should be a great deal");
             check(!PriceChecker.isGreatDeal(offers.get(PAPER)), "paper trade is not a book");
+
+            var sharpnessV = PriceChecker.bookPrice(offers.get(SHARPNESS_CHEAP)).orElseThrow();
+            check(sharpnessV.min() == 17 && sharpnessV.max() == 64, "Sharpness V range should be 17-64, was " + sharpnessV);
+            var mending = PriceChecker.bookPrice(offers.get(MENDING_CHEAP)).orElseThrow();
+            check(mending.min() == 10 && mending.max() == 38, "Mending is doubled: 10-38, was " + mending);
+
+            // Discounts lower the shown price but not the price the villager rolled.
+            MerchantOffer discounted = offers.get(SHARPNESS_EXPENSIVE).copy();
+            discounted.setSpecialPriceDiff(-50);
+            check(discounted.getCostA().getCount() < 20, "discount should apply, cost " + discounted.getCostA());
+            check(!PriceChecker.isGreatDeal(discounted), "a discounted 50 emerald book is still a bad roll");
         });
+
+        // Tooltip with the price range, taken at 2x so it can be read.
+        context.getInput().resizeWindow(1708, 960);
+        context.waitTicks(5);
+        hoverGui(context, 5 + 68 + 8, rowCenterY(SHARPNESS_CHEAP));
+        context.waitTicks(5);
+        context.takeScreenshot("cherishedtrades-1-tooltip");
+        context.getInput().resizeWindow(854, 480);
+        context.waitTicks(5);
 
         clickGui(context, 4, bookmarkY(BOOKSHELF_DUPLICATE));
         context.waitTicks(2);
@@ -215,6 +249,118 @@ public class CherishedTradesClientGameTest implements FabricClientGameTest {
 
         context.getInput().pressKey(InputConstants.KEY_ESCAPE);
         context.waitTicks(5);
+
+        testDiscountAndLabels(context, server, villagerId);
+    }
+
+    // Curing a villager gives a lasting discount, shown in the tooltip; Hero of the Village is
+    // temporary and left out of it. Then, with the trade screen closed, the bookmarked trades are
+    // drawn above the villager the player looks at, without and with a custom name.
+    private static void testDiscountAndLabels(ClientGameTestContext context, TestServerContext server, UUID villagerId) {
+        openTrades(context);
+        clickGui(context, 4, bookmarkY(context.computeOnClient(client -> visualRow(client, MENDING_CHEAP))));
+        context.waitTicks(2);
+        takeFeatureScreenshots(context);
+        context.getInput().pressKey(InputConstants.KEY_ESCAPE);
+        context.waitTicks(5);
+
+        server.runOnServer(s -> findVillager(s, villagerId).onReputationEventFrom(
+                ReputationEventType.ZOMBIE_VILLAGER_CURED, s.getPlayerList().getPlayers().getFirst()));
+
+        // README: the whole trade screen with every feature on and a book's tooltip open.
+        openTrades(context);
+        context.getInput().resizeWindow(1708, 960);
+        context.waitTicks(5);
+        hoverGui(context, 5 + 68 + 8, rowCenterY(context.computeOnClient(client -> visualRow(client, SHARPNESS_CHEAP))));
+        context.waitTicks(5);
+        context.takeScreenshot("readme-price-tooltip");
+        context.getInput().resizeWindow(854, 480);
+        context.getInput().pressKey(InputConstants.KEY_ESCAPE);
+        context.waitTicks(5);
+
+        server.runCommand("effect give @a minecraft:hero_of_the_village 600 4");
+        openTrades(context);
+
+        int expensiveRow = context.computeOnClient(client -> visualRow(client, SHARPNESS_EXPENSIVE));
+        int cheapRow = context.computeOnClient(client -> visualRow(client, SHARPNESS_CHEAP));
+        context.runOnClient(client -> {
+            MerchantOffer offer = menu(client).getOffers().get(expensiveRow);
+            var price = PriceChecker.bookPrice(offer).orElseThrow();
+            check(price.discounted() < 50, "curing should give a lasting discount, got " + price);
+            check(price.discounted() > offer.getCostA().getCount(), "Hero of the Village must be left out of it, shown " + offer.getCostA() + " vs " + price);
+            check(!PriceChecker.isGreatDeal(offer), "a discount must not turn a bad roll into a deal");
+        });
+
+        context.getInput().resizeWindow(1708, 960);
+        context.waitTicks(5);
+        hoverGui(context, 5 + 68 + 8, rowCenterY(cheapRow));
+        context.waitTicks(5);
+        context.takeScreenshot("cherishedtrades-6b-tooltip-discount-deal");
+        hoverGui(context, 5 + 68 + 8, rowCenterY(expensiveRow));
+        context.waitTicks(5);
+        context.takeScreenshot("cherishedtrades-6c-tooltip-discount");
+
+        context.getInput().pressKey(InputConstants.KEY_ESCAPE);
+        server.runCommand("effect clear @a");
+        context.waitTicks(10);
+        context.takeScreenshot("cherishedtrades-6d-villager-labels");
+
+        server.runOnServer(s -> findVillager(s, villagerId).setCustomName(Component.literal("Bob")));
+        context.waitTicks(10);
+        context.takeScreenshot("cherishedtrades-6e-villager-labels-named");
+
+        // README: a few blocks back and aiming at the body, so the crosshair stays below the head.
+        // The name is made always visible, since vanilla only shows it within reach.
+        server.runOnServer(s -> findVillager(s, villagerId).setCustomNameVisible(true));
+        server.runCommand("tp @a 0.5 -60 -2 0 8");
+        context.waitTicks(10);
+        context.runOnClient(client -> check(!VillagerTradeLabels.linesFor(findClientVillager(client, villagerId), 1.0F).isEmpty(),
+                "bookmarked trades should show while looking at the villager's body"));
+        context.takeScreenshot("readme-villager-labels");
+
+        context.runOnClient(client -> client.gui.hud.toggle());
+        context.runOnClient(client -> check(VillagerTradeLabels.linesFor(findClientVillager(client, villagerId), 1.0F).isEmpty(),
+                "labels hide with the HUD (F1), like vanilla name tags"));
+        context.runOnClient(client -> client.gui.hud.toggle());
+
+        context.getInput().resizeWindow(854, 480);
+        context.waitTicks(5);
+    }
+
+    // One 2x screenshot of the trade screen per feature, with the other two turned off, for the README.
+    private static void takeFeatureScreenshots(ClientGameTestContext context) {
+        context.getInput().resizeWindow(1708, 960);
+        context.waitTicks(5);
+        hoverGui(context, GUI_WIDTH + 20, 10);
+
+        featureScreenshot(context, "readme-bookmarks", true, false, false);
+        featureScreenshot(context, "readme-highlighted", false, true, false);
+        featureScreenshot(context, "readme-price-checker", false, false, true);
+        context.runOnClient(client -> setFeatures(true, true, true));
+
+        context.getInput().resizeWindow(854, 480);
+        context.waitTicks(5);
+    }
+
+    private static void featureScreenshot(ClientGameTestContext context, String name, boolean bookmarks, boolean highlighted, boolean prices) {
+        context.runOnClient(client -> setFeatures(bookmarks, highlighted, prices));
+        context.waitTicks(3);
+        context.takeScreenshot(name);
+    }
+
+    private static void setFeatures(boolean bookmarks, boolean highlighted, boolean prices) {
+        CherishedTradesConfig config = CherishedTradesConfig.INSTANCE;
+        config.enableBookmarks = bookmarks;
+        config.enableHighlightedBooks = highlighted;
+        config.enablePriceChecker = prices;
+    }
+
+    private static int visualRow(Minecraft client, int serverIndex) {
+        CherishedMerchantMenu ext = (CherishedMerchantMenu) menu(client);
+        for (int row = 0; row < menu(client).getOffers().size(); row++) {
+            if (ext.cherishedTrades$getRealIndex(row) == serverIndex) return row;
+        }
+        throw new AssertionError("no row for trade " + serverIndex);
     }
 
     /** Spawns the test librarian in front of the player and gives the player emeralds and books. */
@@ -239,7 +385,7 @@ public class CherishedTradesClientGameTest implements FabricClientGameTest {
         MerchantOffers offers = new MerchantOffers();
         offers.add(new MerchantOffer(new ItemCost(Items.PAPER, 24), new ItemStack(Items.EMERALD), 16, 2, 0.05F));
         offers.add(bookOffer(server, Enchantments.MENDING, 1, 5));
-        offers.add(bookOffer(server, Enchantments.SHARPNESS, 4, 60));
+        offers.add(bookOffer(server, Enchantments.SHARPNESS, 4, 50));
         offers.add(bookOffer(server, Enchantments.SHARPNESS, 5, 17));
         offers.add(new MerchantOffer(new ItemCost(Items.EMERALD, 9), new ItemStack(Items.BOOKSHELF), 12, 1, 0.05F));
         offers.add(new MerchantOffer(new ItemCost(Items.EMERALD, 9), new ItemStack(Items.BOOKSHELF), 12, 1, 0.05F));
@@ -267,6 +413,13 @@ public class CherishedTradesClientGameTest implements FabricClientGameTest {
         check(stored != null && stored.getLevel(sharpness) == 5, "server result slot should hold Sharpness V, got " + result + " " + stored);
     }
 
+    private static net.minecraft.world.entity.Entity findClientVillager(Minecraft client, UUID id) {
+        for (var entity : client.level.entitiesForRendering()) {
+            if (entity.getUUID().equals(id)) return entity;
+        }
+        throw new AssertionError("villager " + id + " not found on the client");
+    }
+
     private static Villager findVillager(MinecraftServer server, UUID id) {
         return (Villager) server.overworld().getEntity(id);
     }
@@ -291,6 +444,12 @@ public class CherishedTradesClientGameTest implements FabricClientGameTest {
 
     /** Clicks at a position relative to the trade GUI's top-left corner. */
     private static void clickGui(ClientGameTestContext context, int guiX, int guiY) {
+        hoverGui(context, guiX, guiY);
+        context.getInput().pressMouse(InputConstants.MOUSE_BUTTON_LEFT);
+    }
+
+    /** Moves the cursor to a position relative to the trade GUI's top-left corner. */
+    private static void hoverGui(ClientGameTestContext context, int guiX, int guiY) {
         double[] pos = context.computeOnClient(client -> {
             Window window = client.getWindow();
             int left = (window.getGuiScaledWidth() - GUI_WIDTH) / 2;
@@ -299,7 +458,6 @@ public class CherishedTradesClientGameTest implements FabricClientGameTest {
             return new double[] { (left + guiX + 0.5) * scale, (top + guiY + 0.5) * scale };
         });
         context.getInput().setCursorPos(pos[0], pos[1]);
-        context.getInput().pressMouse(InputConstants.MOUSE_BUTTON_LEFT);
     }
 
     private static void check(boolean condition, String message) {
