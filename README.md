@@ -47,7 +47,8 @@ Hover over a book to see every price it can have, what this villager asks, and t
 
 Open the settings from [Mod Menu](https://modrinth.com/mod/modmenu).
 
-- **Enable Bookmarks**: show the bookmark icons, and the bookmarked trades above villagers.
+- **Enable Bookmarks**: show the bookmark icons next to trades.
+- **Enable Bookmark Labels**: show the bookmarked trades above the villager you are looking at. Turn it off to keep using bookmarks without the labels.
 - **Enable Highlighted Books**: highlight the books picked in the _Highlighted Books_ tab. Turning it off keeps your choices.
 - **Enable Price Checker**: show the gold arrow and the price tooltip.
 - **Price Offset**: also count prices slightly above the lowest as a good deal. An offset of 2 means "lowest price + 2".

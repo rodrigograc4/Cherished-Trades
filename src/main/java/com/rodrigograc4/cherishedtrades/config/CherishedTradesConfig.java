@@ -19,6 +19,9 @@ public class CherishedTradesConfig implements ConfigData {
     public boolean enableBookmarks = true;
 
     @ConfigEntry.Gui.Tooltip
+    public boolean enableBookmarkLabels = true;
+
+    @ConfigEntry.Gui.Tooltip
     public boolean enableHighlightedBooks = true;
 
     @ConfigEntry.Gui.Tooltip

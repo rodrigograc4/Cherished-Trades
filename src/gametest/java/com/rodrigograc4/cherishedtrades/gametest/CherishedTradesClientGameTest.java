@@ -309,19 +309,51 @@ public class CherishedTradesClientGameTest implements FabricClientGameTest {
         context.waitTicks(10);
         context.takeScreenshot("cherishedtrades-6e-villager-labels-named");
 
-        // README: a few blocks back and aiming at the body, so the crosshair stays below the head.
-        // The name is made always visible, since vanilla only shows it within reach.
-        server.runOnServer(s -> findVillager(s, villagerId).setCustomNameVisible(true));
-        server.runCommand("tp @a 0.5 -60 -2 0 8");
-        context.waitTicks(10);
-        context.runOnClient(client -> check(!VillagerTradeLabels.linesFor(findClientVillager(client, villagerId), 1.0F).isEmpty(),
-                "bookmarked trades should show while looking at the villager's body"));
-        context.takeScreenshot("readme-villager-labels");
+        // Labels show exactly when vanilla shows the name tag. The villager is named "Bob" here,
+        // so every check also compares the labels with the real name tag.
+        checkLabels(context, villagerId, true, "labels should show for the villager under the crosshair");
+
+        server.runCommand("tp @a 0.5 -60 -1 0 0");
+        checkLabels(context, villagerId, null, "3.5 blocks away");
+        server.runCommand("tp @a 0.5 -60 -4 0 0");
+        checkLabels(context, villagerId, false, "labels must not show from 6.5 blocks away");
+        server.runCommand("tp @a 0.5 -60 0.5 90 0");
+        checkLabels(context, villagerId, false, "labels must not show when looking away");
+        server.runCommand("tp @a 0.5 -60 0.5 0 0");
+
+        server.runCommand("setblock 0 -59 1 minecraft:stone");
+        checkLabels(context, villagerId, false, "labels must not show through a wall");
+        server.runCommand("setblock 0 -59 1 minecraft:air");
+        checkLabels(context, villagerId, true, "labels should come back once the wall is gone");
+
+        server.runOnServer(s -> findVillager(s, villagerId).addEffect(
+                new net.minecraft.world.effect.MobEffectInstance(net.minecraft.world.effect.MobEffects.INVISIBILITY, 200)));
+        checkLabels(context, villagerId, false, "labels must not show for an invisible villager");
+        server.runOnServer(s -> findVillager(s, villagerId).removeAllEffects());
+        checkLabels(context, villagerId, true, "labels should come back once the villager is visible");
+
+        context.runOnClient(client -> CherishedTradesConfig.INSTANCE.enableBookmarkLabels = false);
+        checkLabels(context, villagerId, false, "Enable Bookmark Labels off hides the labels", false);
+        context.runOnClient(client -> CherishedTradesConfig.INSTANCE.enableBookmarkLabels = true);
 
         context.runOnClient(client -> client.gui.hud.toggle());
-        context.runOnClient(client -> check(VillagerTradeLabels.linesFor(findClientVillager(client, villagerId), 1.0F).isEmpty(),
-                "labels hide with the HUD (F1), like vanilla name tags"));
+        checkLabels(context, villagerId, false, "labels hide with the HUD (F1), like vanilla name tags");
         context.runOnClient(client -> client.gui.hud.toggle());
+
+        // From several angles the name must sit right on top of the lines, with no gap.
+        // Each is "x y z" for the player's feet, aiming at the villager's head from within reach.
+        labelAngle(context, server, villagerId, "1-front", "0.5 -60 0.5", null);
+        labelAngle(context, server, villagerId, "2-above", "0.5 -59 -0.2", "0 -60 -1");
+        labelAngle(context, server, villagerId, "3-below", "0.5 -61 0.5", null);
+        labelAngle(context, server, villagerId, "4-diagonal-left", "-1.2 -60 0.8", null);
+        labelAngle(context, server, villagerId, "5-diagonal-above", "2.2 -59 0.8", "2 -60 0");
+        labelAngle(context, server, villagerId, "6-side", "3 -60 2.5", null);
+
+        // README: the whole head with the crosshair on the body, below the crop.
+        server.runCommand("tp @a 0.5 -60 -0.6 " + facingVillager("0.5 -60 -0.6", VILLAGER_BODY_Y));
+        checkLabels(context, villagerId, true, "labels should show for the README shot");
+        context.takeScreenshot("readme-villager-labels");
+        server.runCommand("tp @a 0.5 -60 0.5 0 0");
 
         context.getInput().resizeWindow(854, 480);
         context.waitTicks(5);
@@ -411,6 +443,51 @@ public class CherishedTradesClientGameTest implements FabricClientGameTest {
         var stored = result.get(DataComponents.STORED_ENCHANTMENTS);
         var sharpness = server.registryAccess().lookupOrThrow(Registries.ENCHANTMENT).getOrThrow(Enchantments.SHARPNESS);
         check(stored != null && stored.getLevel(sharpness) == 5, "server result slot should hold Sharpness V, got " + result + " " + stored);
+    }
+
+    private static void labelAngle(ClientGameTestContext context, TestServerContext server, UUID villagerId,
+                                   String name, String feet, String standOn) {
+        if (feet.contains("-61")) server.runCommand("setblock 0 -61 0 minecraft:air");
+        if (standOn != null) server.runCommand("setblock " + standOn + " minecraft:stone");
+        server.runCommand("tp @a " + feet + " " + facingVillager(feet, VILLAGER_HEAD_Y));
+        checkLabels(context, villagerId, true, "labels should show from angle " + name);
+        context.takeScreenshot("label-angle-" + name);
+        if (standOn != null) server.runCommand("setblock " + standOn + " minecraft:air");
+        if (feet.contains("-61")) server.runCommand("setblock 0 -61 0 minecraft:grass_block");
+    }
+
+    private static final double VILLAGER_HEAD_Y = -58.35;
+    private static final double VILLAGER_BODY_Y = -58.9;
+
+    // "yaw pitch" that points the player's eyes (feet + 1.62) at the villager (x 0.5, z 2.5) at
+    // height y. tp's own "facing" aims from the feet, which looks over the villager.
+    private static String facingVillager(String feet, double y) {
+        String[] parts = feet.split(" ");
+        double dx = 0.5 - Double.parseDouble(parts[0]);
+        double dy = y - (Double.parseDouble(parts[1]) + 1.62);
+        double dz = 2.5 - Double.parseDouble(parts[2]);
+        double yaw = Math.toDegrees(Math.atan2(-dx, dz));
+        double pitch = -Math.toDegrees(Math.atan2(dy, Math.sqrt(dx * dx + dz * dz)));
+        return String.format(java.util.Locale.ROOT, "%.1f %.1f", yaw, pitch);
+    }
+
+    private static void checkLabels(ClientGameTestContext context, UUID villagerId, Boolean shown, String message) {
+        checkLabels(context, villagerId, shown, message, true);
+    }
+
+    // shown: what the labels should do, or null to only require the same as the name tag.
+    // sameAsName: for a named villager, also require the labels to match vanilla's name tag.
+    private static void checkLabels(ClientGameTestContext context, UUID villagerId, Boolean shown, String message, boolean sameAsName) {
+        context.waitTicks(5);
+        context.runOnClient(client -> {
+            var villager = findClientVillager(client, villagerId);
+            boolean labels = VillagerTradeLabels.wereLabelsShown(villager);
+            boolean name = VillagerTradeLabels.wasNameShown(villager);
+            if (shown != null) check(labels == shown, message + " (labels shown: " + labels + ")");
+            if (sameAsName && villager.hasCustomName()) {
+                check(labels == name, message + ": labels (" + labels + ") must match the name tag (" + name + ")");
+            }
+        });
     }
 
     private static net.minecraft.world.entity.Entity findClientVillager(Minecraft client, UUID id) {

@@ -17,11 +17,11 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.enchantment.Enchantment;
-import net.minecraft.world.phys.AABB;
-import net.minecraft.world.phys.Vec3;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.WeakHashMap;
 import java.util.Optional;
 import java.util.Set;
 import java.util.regex.Matcher;
@@ -33,8 +33,6 @@ import java.util.regex.Pattern;
  * the trade screen again.
  */
 public final class VillagerTradeLabels {
-
-    private static final double LOOK_RANGE = 16.0;
 
     // Drawn inside the text after the price, as textures/gui/sprites/emerald_icon.png: the emerald
     // item texture cut to 14x14 around the gem. Text sprites fill an 8 px square that starts 1 px
@@ -50,31 +48,60 @@ public final class VillagerTradeLabels {
     private VillagerTradeLabels() {
     }
 
-    public static List<Component> linesFor(Entity entity, float partialTick) {
+    // Vanilla's decision for the entity being extracted right now, recorded by MobRendererMixin.
+    private static Entity nameRuleEntity;
+    private static boolean nameRuleResult;
+
+    // What was decided last time each villager was drawn; read by the game tests.
+    private static final Map<Entity, Boolean> LABELS_SHOWN = new WeakHashMap<>();
+    private static final Map<Entity, Boolean> NAME_SHOWN = new WeakHashMap<>();
+
+    /** Called before an entity's render state is extracted. */
+    public static void startExtract() {
+        nameRuleEntity = null;
+    }
+
+    /**
+     * Called by MobRendererMixin while vanilla decides whether to show a mob's name: whether
+     * the name would show if the mob had one (all of vanilla's rules: within 64 blocks, HUD
+     * shown, not invisible, team rules, and either always visible or under the crosshair).
+     */
+    public static void recordNameRule(Entity entity, boolean wouldShowIfNamed) {
+        nameRuleEntity = entity;
+        nameRuleResult = wouldShowIfNamed;
+    }
+
+    /** The lines to draw for an entity whose render state was just extracted. */
+    public static List<Component> extract(Entity entity, boolean nameShown) {
         if (!(entity instanceof AbstractVillager)) return List.of();
-        if (!CherishedTradesConfig.INSTANCE.enableBookmarks) return List.of();
+        boolean wouldShow = nameRuleEntity == entity && nameRuleResult;
+        List<Component> lines = linesFor(entity, wouldShow);
+        LABELS_SHOWN.put(entity, !lines.isEmpty());
+        NAME_SHOWN.put(entity, nameShown);
+        return lines;
+    }
+
+    public static boolean wereLabelsShown(Entity entity) {
+        return LABELS_SHOWN.getOrDefault(entity, false);
+    }
+
+    public static boolean wasNameShown(Entity entity) {
+        return NAME_SHOWN.getOrDefault(entity, false);
+    }
+
+    // Shown exactly when vanilla would show the villager's name tag, except while a screen
+    // (like the trade screen itself) covers the world.
+    private static List<Component> linesFor(Entity entity, boolean nameTagWouldShow) {
+        CherishedTradesConfig config = CherishedTradesConfig.INSTANCE;
+        if (!config.enableBookmarks || !config.enableBookmarkLabels) return List.of();
+        if (!nameTagWouldShow || Minecraft.getInstance().gui.screen() != null) return List.of();
 
         Set<String> favorites = CherishedTradesManager.getFavorites(entity.getUUID());
-        if (favorites.isEmpty() || !isLookedAt(entity, partialTick)) return List.of();
-
         List<Component> lines = new ArrayList<>();
         for (String key : favorites) {
             describe(key).ifPresent(lines::add);
         }
         return lines;
-    }
-
-    private static boolean isLookedAt(Entity entity, float partialTick) {
-        Minecraft minecraft = Minecraft.getInstance();
-        Entity camera = minecraft.getCameraEntity();
-        // Not while a screen (like the trade screen itself) covers the world, or with the HUD
-        // hidden (F1), which hides vanilla name tags too.
-        if (camera == null || minecraft.gui.screen() != null || minecraft.gui.hud.isHidden()) return false;
-
-        Vec3 eye = camera.getEyePosition(partialTick);
-        Vec3 end = eye.add(camera.getViewVector(partialTick).scale(LOOK_RANGE));
-        AABB box = entity.getBoundingBox().inflate(0.2);
-        return box.contains(eye) || box.clip(eye, end).isPresent();
     }
 
     // Trade keys are "serverIndex|costA[+costB]>result".

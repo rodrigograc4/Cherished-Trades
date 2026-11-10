@@ -2,6 +2,8 @@
   "text.autoconfig.cherished-trades.title": "Cherished Trades",
   "text.autoconfig.cherished-trades.option.enableBookmarks": "Enable Bookmarks",
   "text.autoconfig.cherished-trades.option.enableBookmarks.@Tooltip": "Shows a bookmark icon next to villager trades, allowing you to mark your favorite trades.",
+  "text.autoconfig.cherished-trades.option.enableBookmarkLabels": "Enable Bookmark Labels",
+  "text.autoconfig.cherished-trades.option.enableBookmarkLabels.@Tooltip": "Shows a villager's bookmarked trades above its head when you look at it up close. Bookmarks still work with this off.",
   "text.autoconfig.cherished-trades.option.enableHighlightedBooks": "Enable Highlighted Books",
   "text.autoconfig.cherished-trades.option.enableHighlightedBooks.@Tooltip": "Highlights trades selling the enchanted books chosen in the Highlighted Books tab. Turning this off keeps your choices.",
   "text.autoconfig.cherished-trades.option.enablePriceChecker": "Enable Price Checker",

@@ -21,8 +21,10 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityAttachment;
 import net.minecraft.world.phys.Vec3;
 
+import org.joml.Vector3f;
+
 /**
- * Draws a villager's bookmarked trades above its head while the player looks at it, one line
+ * Draws a villager's bookmarked trades above its head whenever vanilla would show its name, one line
  * per trade, the same way name tags are drawn but smaller and with no gaps. A custom name, if
  * any, goes right above them.
  */
@@ -39,9 +41,14 @@ public abstract class EntityRendererMixin {
     @Unique
     private static final float PIXEL = 0.025F;
 
+    @Inject(method = "extractRenderState", at = @At("HEAD"))
+    private void cherishedTrades$startExtract(Entity entity, EntityRenderState state, float partialTick, CallbackInfo ci) {
+        VillagerTradeLabels.startExtract();
+    }
+
     @Inject(method = "extractRenderState", at = @At("TAIL"))
     private void cherishedTrades$extractTradeLines(Entity entity, EntityRenderState state, float partialTick, CallbackInfo ci) {
-        List<Component> lines = VillagerTradeLabels.linesFor(entity, partialTick);
+        List<Component> lines = VillagerTradeLabels.extract(entity, state.nameTag != null);
         ((VillagerLabelState) state).cherishedTrades$setTradeLines(lines);
 
         // Only set by vanilla when the entity has a name to show.
@@ -75,9 +82,12 @@ public abstract class EntityRendererMixin {
         }
         poseStack.popPose();
 
-        // Raise the custom name, if any, so its bottom (row 9) meets the first line's top.
+        // Raise the custom name, if any, so its bottom (row 9) meets the first line's top. It moves
+        // along the camera's up direction, the one the lines are stacked along: plain world up
+        // would leave a gap whenever the villager is seen from above or below.
         float firstTop = (firstRow - 1) * TEXT_SCALE;
-        poseStack.translate(0.0F, (9 - firstTop) * PIXEL, 0.0F);
+        Vector3f up = new Vector3f(0.0F, (9 - firstTop) * PIXEL, 0.0F).rotate(camera.orientation);
+        poseStack.translate(up.x, up.y, up.z);
     }
 
     @Inject(method = "submitNameDisplay(Lnet/minecraft/client/renderer/entity/state/EntityRenderState;Lcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/SubmitNodeCollector;Lnet/minecraft/client/renderer/state/level/CameraRenderState;I)V",

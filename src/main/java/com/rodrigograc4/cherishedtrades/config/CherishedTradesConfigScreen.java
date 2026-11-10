@@ -114,6 +114,11 @@ public final class CherishedTradesConfigScreen {
                 .setTooltip(tooltip("enableBookmarks"))
                 .setSaveConsumer(value -> config.enableBookmarks = value)
                 .build());
+        general.addEntry(entries.startBooleanToggle(option("enableBookmarkLabels"), config.enableBookmarkLabels)
+                .setDefaultValue(defaults.enableBookmarkLabels)
+                .setTooltip(tooltip("enableBookmarkLabels"))
+                .setSaveConsumer(value -> config.enableBookmarkLabels = value)
+                .build());
         general.addEntry(entries.startBooleanToggle(option("enableHighlightedBooks"), config.enableHighlightedBooks)
                 .setDefaultValue(defaults.enableHighlightedBooks)
                 .setTooltip(tooltip("enableHighlightedBooks"))
