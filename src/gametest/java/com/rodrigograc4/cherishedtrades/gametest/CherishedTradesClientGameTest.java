@@ -119,6 +119,13 @@ public class CherishedTradesClientGameTest implements FabricClientGameTest {
 
             context.getInput().pressKey(InputConstants.KEY_ESCAPE);
             context.waitTicks(5);
+
+            // "Clear bookmarks" on the config screen empties this server only.
+            context.runOnClient(client -> {
+                check(CherishedTradesManager.countFavoritesInCurrentWorld() == 1, "one bookmark on the server, was " + CherishedTradesManager.countFavoritesInCurrentWorld());
+                CherishedTradesManager.clearCurrentWorld();
+                check(CherishedTradesManager.countFavoritesInCurrentWorld() == 0, "clearing should remove the server's bookmarks");
+            });
         }
 
         context.setScreen(() -> CherishedTradesConfigScreen.create(null));
@@ -162,6 +169,15 @@ public class CherishedTradesClientGameTest implements FabricClientGameTest {
             check(sharpnessV.min() == 17 && sharpnessV.max() == 64, "Sharpness V range should be 17-64, was " + sharpnessV);
             var mending = PriceChecker.bookPrice(offers.get(MENDING_CHEAP)).orElseThrow();
             check(mending.min() == 10 && mending.max() == 38, "Mending is doubled: 10-38, was " + mending);
+
+            // Good Deal Range: a share of the 5 + 10 * level equally likely rolls, at least the cheapest.
+            checkDealMax(5, false, 0, 17);
+            checkDealMax(5, false, 5, 19);   // 55 rolls * 5% = 2.75, so 3 prices: 17, 18, 19
+            checkDealMax(3, false, 5, 12);   // 35 rolls * 5% = 1.75, so 2 prices: 11, 12
+            checkDealMax(1, false, 5, 5);    // 15 rolls * 5% = 0.75, so just the cheapest
+            checkDealMax(1, true, 5, 10);    // Mending, doubled
+            checkDealMax(1, true, 50, 24);   // 8 rolls, doubled: 10, 12 ... 24
+            checkDealMax(5, false, 50, 44);  // 28 rolls: 17 ... 44
 
             // Discounts lower the shown price but not the price the villager rolled.
             MerchantOffer discounted = offers.get(SHARPNESS_EXPENSIVE).copy();
@@ -385,6 +401,11 @@ public class CherishedTradesClientGameTest implements FabricClientGameTest {
         config.enableBookmarks = bookmarks;
         config.enableHighlightedBooks = highlighted;
         config.enablePriceChecker = prices;
+    }
+
+    private static void checkDealMax(int level, boolean doublePrice, int percent, int expected) {
+        int actual = PriceChecker.getDealMaxPrice(level, doublePrice, percent);
+        check(actual == expected, "deal max for level " + level + (doublePrice ? " doubled" : "") + " at " + percent + "% should be " + expected + ", was " + actual);
     }
 
     private static int visualRow(Minecraft client, int serverIndex) {

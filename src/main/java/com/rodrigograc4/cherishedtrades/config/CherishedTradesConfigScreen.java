@@ -1,5 +1,7 @@
 package com.rodrigograc4.cherishedtrades.config;
 
+import com.rodrigograc4.cherishedtrades.CherishedTradesManager;
+import com.rodrigograc4.cherishedtrades.mixin.BooleanListEntryAccessor;
 import com.rodrigograc4.cherishedtrades.util.EnchantmentHelper;
 import me.shedaniel.clothconfig2.api.ConfigBuilder;
 import me.shedaniel.clothconfig2.api.ConfigCategory;
@@ -7,7 +9,10 @@ import me.shedaniel.clothconfig2.api.ConfigEntryBuilder;
 import me.shedaniel.clothconfig2.gui.entries.BooleanListEntry;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.screens.ConfirmScreen;
 import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.contents.TranslatableContents;
 
@@ -15,6 +20,7 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 
 /**
@@ -25,6 +31,7 @@ import java.util.Set;
 public final class CherishedTradesConfigScreen {
 
     private static final String KEY = "text.autoconfig.cherished-trades.";
+    private static final Component BOOKS_CATEGORY = Component.translatable(KEY + "category.highlightedEnchantments");
 
     /** Every enchantment in vanilla's #minecraft:tradeable tag, with its max level. */
     private record TradeableEnchantment(String id, int maxLevel) {
@@ -129,26 +136,87 @@ public final class CherishedTradesConfigScreen {
                 .setTooltip(tooltip("enablePriceChecker"))
                 .setSaveConsumer(value -> config.enablePriceChecker = value)
                 .build());
-        general.addEntry(entries.startIntSlider(option("priceOffset"), config.priceOffset, 0, 50)
-                .setDefaultValue(defaults.priceOffset)
-                .setTooltip(tooltip("priceOffset"))
-                .setSaveConsumer(value -> config.priceOffset = value)
+        general.addEntry(entries.startIntSlider(option("dealPercent"), config.dealPercent, 0, 50)
+                .setDefaultValue(defaults.dealPercent)
+                .setTooltip(tooltip("dealPercent"))
+                .setTextGetter(value -> value == 0
+                        ? Component.translatable(KEY + "option.dealPercent.lowest")
+                        : Component.literal(value + "%"))
+                .setSaveConsumer(value -> config.dealPercent = value)
                 .build());
+        general.addEntry(clearBookmarksButton());
 
-        ConfigCategory books = builder.getOrCreateCategory(Component.translatable(KEY + "category.highlightedEnchantments"));
+        ConfigCategory books = builder.getOrCreateCategory(BOOKS_CATEGORY);
         books.addEntry(entries.startTextDescription(Component.translatable(KEY + "highlightedEnchantments.description")).build());
 
         Set<String> defaultHighlighted = new LinkedHashSet<>(defaults.highlightedEnchantments);
         List<TradeableEnchantment> sorted = new ArrayList<>(ENCHANTMENTS);
         sorted.sort(Comparator.comparing(e -> e.name().getString()));
 
+        List<BooleanListEntry> toggles = new ArrayList<>();
         for (TradeableEnchantment enchantment : sorted) {
             for (int level = 1; level <= enchantment.maxLevel(); level++) {
-                books.addEntry(levelToggle(entries, highlighted, defaultHighlighted, enchantment, level));
+                toggles.add(levelToggle(entries, highlighted, defaultHighlighted, enchantment, level));
             }
         }
 
+        books.addEntry(turnAllOffButton(toggles));
+        toggles.forEach(books::addEntry);
+
         return builder.build();
+    }
+
+    /** True for the Highlighted Books tab, the only one that keeps Cloth's search field. */
+    public static boolean isBooksCategory(Component category) {
+        return category.getContents() instanceof TranslatableContents contents
+                && contents.getKey().equals(KEY + "category.highlightedEnchantments");
+    }
+
+    // Like the toggles themselves, this only takes effect when the screen is saved.
+    private static ButtonListEntry turnAllOffButton(List<BooleanListEntry> toggles) {
+        return new ButtonListEntry(
+                option("turnAllOff"),
+                () -> Component.translatable(KEY + "option.turnAllOff.button"),
+                () -> toggles.stream().anyMatch(BooleanListEntry::getValue),
+                () -> Optional.of(new Component[]{tooltip("turnAllOff")}),
+                () -> toggles.forEach(toggle -> ((BooleanListEntryAccessor) toggle).cherishedTrades$value().set(false)));
+    }
+
+    // Bookmarks are kept per world or server, so this needs one open. From the title screen the
+    // button stays greyed out and its tooltip says why.
+    private static ButtonListEntry clearBookmarksButton() {
+        return new ButtonListEntry(
+                option("clearBookmarks"),
+                () -> {
+                    if (!inWorld()) return Component.translatable(KEY + "option.clearBookmarks.button");
+                    int count = CherishedTradesManager.countFavoritesInCurrentWorld();
+                    if (count == 0) return Component.translatable(KEY + "option.clearBookmarks.none");
+                    return Component.translatable(KEY + "option.clearBookmarks.count" + (count == 1 ? ".one" : ""), count);
+                },
+                () -> inWorld() && CherishedTradesManager.countFavoritesInCurrentWorld() > 0,
+                () -> Optional.of(new Component[]{tooltip(inWorld() ? "clearBookmarks" : "clearBookmarks.noWorld")}),
+                CherishedTradesConfigScreen::confirmClearBookmarks);
+    }
+
+    // Clearing can't be undone, so it asks first and happens right away instead of on save.
+    private static void confirmClearBookmarks() {
+        Minecraft minecraft = Minecraft.getInstance();
+        Screen configScreen = minecraft.gui.screen();
+        int count = CherishedTradesManager.countFavoritesInCurrentWorld();
+
+        minecraft.gui.setScreen(new ConfirmScreen(
+                confirmed -> {
+                    if (confirmed) CherishedTradesManager.clearCurrentWorld();
+                    minecraft.gui.setScreen(configScreen);
+                },
+                Component.translatable(KEY + "clearBookmarks.confirm.title" + (count == 1 ? ".one" : ""), count),
+                Component.translatable(KEY + "clearBookmarks.confirm.message"),
+                Component.translatable(KEY + "clearBookmarks.confirm.yes"),
+                CommonComponents.GUI_CANCEL));
+    }
+
+    private static boolean inWorld() {
+        return Minecraft.getInstance().level != null;
     }
 
     /** True for the screen built here; used by the Cloth mixin to strip search and tab arrows. */

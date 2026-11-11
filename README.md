@@ -31,7 +31,7 @@ Choose the enchanted books you are looking for, and any trade selling one is hig
 
 ### 💰 Price checker
 
-A gold arrow marks enchanted books sold at the lowest price a villager can roll. It looks at the villager's own price, so temporary discounts such as Hero of the Village don't make a bad deal look good.
+A gold arrow marks enchanted books sold at one of the lowest prices a villager can roll: the cheapest 5% of them by default, which you can change in the settings. It looks at the villager's own price, so temporary discounts such as Hero of the Village don't make a bad deal look good.
 
 ![Gold arrows on the cheapest enchanted book trades](https://raw.githubusercontent.com/rodrigograc4/Cherished-Trades/main/assets/price-checker.png)
 <br><br>
@@ -51,14 +51,20 @@ Open the settings from [Mod Menu](https://modrinth.com/mod/modmenu).
 - **Enable Bookmark Labels**: show the bookmarked trades above the villager you are looking at. Turn it off to keep using bookmarks without the labels.
 - **Enable Highlighted Books**: highlight the books picked in the _Highlighted Books_ tab. Turning it off keeps your choices.
 - **Enable Price Checker**: show the gold arrow and the price tooltip.
-- **Price Offset**: also count prices slightly above the lowest as a good deal. An offset of 2 means "lowest price + 2".
+- **Good Deal Range**: how many of a book's possible prices get the gold arrow, starting from the cheapest. At the default 5%, about 1 in 20 villagers offering a book has it at a good price, whatever the book's level. The cheapest price always counts.
+- **Bookmarks in This World**: clears every bookmark in the world or server you are playing on. Other worlds and servers keep theirs. Open the settings from inside a world to use it.
 
 ![General settings](https://raw.githubusercontent.com/rodrigograc4/Cherished-Trades/main/assets/settings.png)
 <br><br>
 
-In the **Highlighted Books** tab, every enchantment villagers can sell is listed, one toggle per level.
+Clearing bookmarks can't be undone, so it asks first.
 
-![Highlighted Books settings](https://raw.githubusercontent.com/rodrigograc4/Cherished-Trades/main/assets/settings-books.png)
+![Asking before clearing the bookmarks in this world](https://raw.githubusercontent.com/rodrigograc4/Cherished-Trades/main/assets/clear-bookmarks.png)
+<br><br>
+
+In the **Highlighted Books** tab, every enchantment villagers can sell is listed, one toggle per level. Type in the search bar to find a book quickly, or press **Turn All Off** to start over. Nothing changes until you save.
+
+![Searching the Highlighted Books tab for Unbreaking](https://raw.githubusercontent.com/rodrigograc4/Cherished-Trades/main/assets/settings-books.png)
 <br>
 
 ---

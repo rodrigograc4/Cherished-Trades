@@ -63,6 +63,24 @@ public class CherishedTradesManager {
         save();
     }
 
+    /** How many trades are bookmarked in the current world, across all its villagers. */
+    public static int countFavoritesInCurrentWorld() {
+        Map<UUID, Set<String>> favorites = FAVORITES_BY_WORLD.get(WorldKey.current());
+        if (favorites == null) return 0;
+        int count = 0;
+        for (Set<String> trades : favorites.values()) {
+            count += trades.size();
+        }
+        return count;
+    }
+
+    /** Removes every bookmark in the current world. Other worlds and servers keep theirs. */
+    public static void clearCurrentWorld() {
+        if (FAVORITES_BY_WORLD.remove(WorldKey.current()) != null) {
+            save();
+        }
+    }
+
     // Reads bookmarks stored as { "version": 2, "worlds": { world: { villager uuid: [trade keys] } } }.
     // Files from 1.1.0 and older used different keys and are ignored.
     private static void load() {

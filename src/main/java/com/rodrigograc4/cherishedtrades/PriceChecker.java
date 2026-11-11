@@ -26,8 +26,10 @@ public class PriceChecker {
      *                   and demand, which wear off
      * @param min        the cheapest price any villager can roll for this book
      * @param max        the most expensive one
+     * @param dealMax    the most expensive price that still counts as a good deal, from the
+     *                   Good Deal Range setting
      */
-    public record BookPrice(int rolled, int discounted, int min, int max) {
+    public record BookPrice(int rolled, int discounted, int min, int max, int dealMax) {
     }
 
     public static boolean isGreatDeal(MerchantOffer offer) {
@@ -36,7 +38,7 @@ public class PriceChecker {
     }
 
     public static boolean isGreatDeal(BookPrice price) {
-        return price.rolled() <= price.min() + CherishedTradesConfig.INSTANCE.priceOffset;
+        return price.rolled() <= price.dealMax();
     }
 
     public static Optional<BookPrice> bookPrice(MerchantOffer offer) {
@@ -57,7 +59,8 @@ public class PriceChecker {
                 baseCost.getCount(),
                 reputationPrice(offer),
                 getMinPrice(level, doublePrice),
-                getMaxPrice(level, doublePrice)));
+                getMaxPrice(level, doublePrice),
+                getDealMaxPrice(level, doublePrice, CherishedTradesConfig.INSTANCE.dealPercent)));
     }
 
     // The villager adds two discounts to specialPriceDiff when trading starts (Villager.updateSpecialPrices):
@@ -89,6 +92,17 @@ public class PriceChecker {
 
     private static int getMaxPrice(int level, boolean doublePrice) {
         int price = 6 + 13 * level;
+        return Math.min(doublePrice ? price * 2 : price, 64);
+    }
+
+    // The 5 + 10 * level rolls are equally likely, so taking the same share of them for every
+    // level gives every book the same chance of being a deal. A flat number of emeralds would not:
+    // +2 is 3 of 15 prices for a level 1 book but only 3 of 55 for a level 5 one. The cheapest
+    // roll always counts, even when the share rounds down to nothing.
+    public static int getDealMaxPrice(int level, boolean doublePrice, int percent) {
+        int rolls = 5 + 10 * level;
+        int dealRolls = Math.max(1, Math.round(rolls * percent / 100.0F));
+        int price = 2 + 3 * level + (dealRolls - 1);
         return Math.min(doublePrice ? price * 2 : price, 64);
     }
 }

@@ -27,9 +27,13 @@ public class CherishedTradesConfig implements ConfigData {
     @ConfigEntry.Gui.Tooltip
     public boolean enablePriceChecker = true;
 
+    /**
+     * How many of a book's possible prices count as a good deal, as a percentage of them starting
+     * from the cheapest. Replaces priceOffset (a flat number of emeralds) from 1.3.1 and older.
+     */
     @ConfigEntry.Gui.Tooltip
     @ConfigEntry.BoundedDiscrete(min = 0, max = 50)
-    public int priceOffset = 0;
+    public int dealPercent = 5;
 
     @ConfigEntry.Gui.Tooltip
     public List<String> highlightedEnchantments = new ArrayList<>(List.of("minecraft:mending 1", "minecraft:unbreaking 3"));

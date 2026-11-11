@@ -21,7 +21,8 @@ import net.minecraft.client.gui.components.AbstractWidget;
 /**
  * Cloth has no option to turn these off, so on this mod's screen only: hides the tab scroll
  * arrows (both tabs always fit), the dark strip behind the tabs, and the search field at the
- * top of the list, and lines the tabs up with where the option names start.
+ * top of the General tab, and lines the tabs up with where the option names start. The
+ * Highlighted Books tab keeps the search field, since it lists every enchantment level.
  */
 @Mixin(value = ClothConfigScreen.class, remap = false)
 public abstract class ClothConfigScreenMixin {
@@ -37,6 +38,9 @@ public abstract class ClothConfigScreenMixin {
 
         if (buttonLeftTab != null) buttonLeftTab.visible = false;
         if (buttonRightTab != null) buttonRightTab.visible = false;
+
+        ClothConfigScreen screen = (ClothConfigScreen) (Object) this;
+        if (CherishedTradesConfigScreen.isBooksCategory(screen.getSelectedCategory())) return;
 
         // The search field sits between two spacer entries; drop it and the spacer after it.
         var children = listWidget.children();

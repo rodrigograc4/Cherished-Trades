@@ -4,7 +4,7 @@
   "package": "com.rodrigograc4.cherishedtrades.mixin",
   "compatibilityLevel": "JAVA_25",
   "mixins": ["MerchantMenuMixin", "MerchantScreenMixin", "MultiPlayerGameModeMixin"],
-  "client": ["ClothConfigScreenMixin", "ClothConfigTabButtonMixin", "EntityRenderStateMixin", "EntityRendererMixin", "MobRendererMixin"],
+  "client": ["BooleanListEntryAccessor", "ClothConfigScreenMixin", "ClothConfigTabButtonMixin", "EntityRenderStateMixin", "EntityRendererMixin", "MobRendererMixin"],
   "injectors": {
     "defaultRequire": 1
   }
